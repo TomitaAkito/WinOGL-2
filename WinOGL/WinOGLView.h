@@ -4,6 +4,7 @@
 
 #pragma once
 #include <gl/GL.h>
+#include "CAdminControl.h"
 
 class CWinOGLView : public CView
 {
@@ -46,6 +47,7 @@ public:
 
 private:
 	HGLRC m_hRC;
+	CAdminControl AC;  // 管理コントロールのインスタンス
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnDestroy();
