@@ -27,6 +27,7 @@ BEGIN_MESSAGE_MAP(CWinOGLView, CView)
 	ON_WM_CREATE()
 	ON_WM_DESTROY()
 	ON_WM_ERASEBKGND()
+	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 // CWinOGLView コンストラクション/デストラクション
@@ -61,6 +62,13 @@ void CWinOGLView::OnDraw(CDC* pDC)
 	wglMakeCurrent(pDC->m_hDC, m_hRC);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT /* | GL_DEPTH_BUFFER_BIT*/);
+
+	glColor3f(1.0, 1.0, 1.0);
+	glPointSize(5.0);
+	glBegin(GL_POINTS);
+	glVertex2f(x_Ldown, y_Ldown);
+	glEnd();
+
 	glFlush();
 	SwapBuffers(pDC->m_hDC);
 	wglMakeCurrent(pDC->m_hDC, NULL);
@@ -92,8 +100,34 @@ CWinOGLDoc* CWinOGLView::GetDocument() const // デバッグ以外のバージ�
 
 void CWinOGLView::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	// TODO: ここにメッセージ ハンドラー コードを追加するか、既定の処理を呼び出します。
+	// 描画領域の大きさを取得
+	CRect rect;
+	GetClientRect(rect);
 
+	x_Ldown = point.x;
+	y_Ldown = point.y;
+
+	double rectWidth = static_cast<double>(rect.Width());
+	double rectHeight = static_cast<double>(rect.Height());
+
+	// 正規化座標系に変換
+	x_Ldown = x_Ldown / (rectWidth);
+	y_Ldown = y_Ldown / (rectHeight);
+
+	// ワールド座標系に変換
+	x_Ldown = (x_Ldown * 2.0) - 1.0; // 左端が-1.0、右端が1.0
+	y_Ldown = 1.0 - (y_Ldown * 2.0); // 上端が1.0、下端が-1.0
+
+	// 縦横比を考慮して座標を調整
+	if (rectWidth > rectHeight) {
+		x_Ldown *= rectWidth / rectHeight;
+	}
+	else
+	{
+		y_Ldown *= rectHeight / rectWidth;
+	}
+
+	RedrawWindow();
 	CView::OnLButtonDown(nFlags, point);
 }
 
@@ -137,4 +171,32 @@ void CWinOGLView::OnDestroy()
 BOOL CWinOGLView::OnEraseBkgnd(CDC* pDC)
 {
 	return true;
+}
+
+void CWinOGLView::OnSize(UINT nType, int cx, int cy)
+{
+	CView::OnSize(nType, cx, cy);
+
+	CClientDC clientDC(this);
+	wglMakeCurrent(clientDC.m_hDC, m_hRC);
+	glViewport(0, 0, cx, cy);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	double aspect;
+
+	if (cx > cy)
+	{
+		aspect = static_cast<double>(cx) / static_cast<double>(cy);
+		glOrtho(-aspect, aspect, -1.0, 1.0, -100.0, 100.0);
+	}
+	else
+	{
+		aspect = static_cast<double>(cy) / static_cast<double>(cx);
+		glOrtho(-1.0, 1.0, -aspect, aspect, -100.0, 100.0);
+	}
+
+	glMatrixMode(GL_MODELVIEW);
+	RedrawWindow();
+	wglMakeCurrent(clientDC.m_hDC, NULL);
 }

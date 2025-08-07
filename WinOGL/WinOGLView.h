@@ -18,6 +18,10 @@ public:
 // 操作
 public:
 
+private:
+	float x_Ldown;  // マウスの左ボタンが押されたときのX座標
+	float y_Ldown;  // マウスの左ボタンが押されたときのY座標
+
 // オーバーライド
 public:
 	virtual void OnDraw(CDC* pDC);  // このビューを描画するためにオーバーライドされます。
@@ -46,6 +50,7 @@ public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnDestroy();
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 };
 
 #ifndef _DEBUG  // WinOGLView.cpp のデバッグ バージョン
