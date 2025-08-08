@@ -124,6 +124,8 @@ void CWinOGLView::OnLButtonDown(UINT nFlags, CPoint point)
 		y_Ldown *= rectHeight / rectWidth;
 	}
 
+	AC.SetVertex(x_Ldown, y_Ldown);
+
 	RedrawWindow();
 	CView::OnLButtonDown(nFlags, point);
 }
