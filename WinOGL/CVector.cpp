@@ -1,0 +1,32 @@
+#include "pch.h"
+#include "CVector.h"
+
+CVector::CVector() {
+	x = 0.0f; // X¬•ª‚Ì‰Šú‰»
+	y = 0.0f; // Y¬•ª‚Ì‰Šú‰»
+}
+
+CVector::CVector(float x, float y) {
+	this->x = x; // X¬•ª‚Ì‰Šú‰»
+	this->y = y; // Y¬•ª‚Ì‰Šú‰»
+}
+
+CVector::~CVector() {
+}
+
+
+void CVector::SetX(float x) {
+	this->x = x; // X¬•ª‚ğİ’è
+}
+
+float CVector::GetX() {
+	return x; // X¬•ª‚ğæ“¾
+}
+
+void CVector::SetY(float y) {
+	this->y = y; // Y¬•ª‚ğİ’è
+}
+
+float CVector::GetY() {
+	return y; // Y¬•ª‚ğæ“¾
+}

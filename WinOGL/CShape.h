@@ -79,6 +79,34 @@ private:
 	/// </summary>
 	/// <returns>オブジェクトが閉じている場合は true、開いている場合は false</returns>
 	bool GetIsClosedFlag();
+
+#pragma endregion
+
+#pragma region 判定系
+
+	/// <summary>
+	/// 自交差を判定
+	/// </summary>
+	/// <param name="newVertex">新しい頂点</param>
+	/// <returns>自交差している場合はtrue、していない場合はfalse</returns>
+	bool isSelfCrossed(CVertex* newVertex);
+
+#pragma endregion
+
+#pragma region その他のメソッド
+
+	/// <summary>
+	/// 図形を解放
+	/// </summary>
+	void freeShape();
+
+	/// <summary>
+	/// 座標が一致する頂点を削除
+	/// </summary>
+	/// <param name="x">x座標</param>
+	/// <param name="y">y座標</param>
+	void freeVertex(float x,float y);
+
 #pragma endregion
 };
 

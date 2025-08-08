@@ -1,6 +1,8 @@
 #pragma once
 #include <math.h>
 #include "CVertex.h"
+#include "CVector.h"
+
 class CMath{
 public:
 	/// <summary>
