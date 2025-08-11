@@ -6,6 +6,10 @@ CAdminControl::CAdminControl(){
 	shape_head = NULL;
 	shape_tail = NULL;
 	CLOSE_DISTANCE = 0.05f;
+	POINTSIZE = 10.0f;
+	LINEWIDTH = 4.0f;
+	AxisFlag = false;
+	mouseVertex = new CVertex();
 }
 
 CAdminControl::~CAdminControl()
@@ -14,17 +18,23 @@ CAdminControl::~CAdminControl()
 
 void CAdminControl::Draw()
 {
+	// 予測線
+	DrawPredictLine();
+
 	// 点の描画
 	DrawVertex();
 	// 線の描画
 	DrawLine();
+
+	// 座標軸の表示
+	if (AxisFlag) DrawAxis();
 }
 
 void CAdminControl::DrawVertex() {
 
 	// 色・サイズの設定
 	glColor3f(1.0, 1.0, 1.0);
-	glPointSize(10.0);
+	glPointSize(POINTSIZE);
 	glBegin(GL_POINTS);
 
 	// 頂点リストを走査して頂点を描画
@@ -41,7 +51,7 @@ void CAdminControl::DrawVertex() {
 void CAdminControl::DrawLine() {
 	// 色・サイズの設定
 	glColor3f(1.0, 1.0, 1.0);
-	glLineWidth(2.0);
+	glLineWidth(LINEWIDTH);
 	glBegin(GL_LINES);
 	
 	for (CShape* current_shape = shape_head; current_shape != NULL; current_shape = current_shape->GetNext()) {
@@ -57,6 +67,68 @@ void CAdminControl::DrawLine() {
 
 	glEnd();
 }
+
+void CAdminControl::DrawSizeChangeUP() {
+	if (LINEWIDTH <= 10.0) {
+		POINTSIZE += 0.7;
+		LINEWIDTH += 0.4;
+	}
+}
+
+void CAdminControl::DrawSizeChangeDOWN() {
+	if (LINEWIDTH >= 1.0) {
+		POINTSIZE -= 0.7;
+		LINEWIDTH -= 0.4;
+	}
+}
+
+void CAdminControl::DrawAxis() {
+	glBegin(GL_LINES);
+	// x軸
+	glColor3f(1.0, 0.0, 0.0);
+	glVertex3f(-1.0, 0.0, 0.0);
+	glVertex3f(1.0, 0.0, 0.0);
+	// y軸
+	glColor3f(0.0, 1.0, 0.0);
+	glVertex3f(0.0, -1.0, 0.0);
+	glVertex3f(0.0, 1.0, 0.0);
+	// z軸
+	glColor3f(0.0, 0.0, 1.0);
+	glVertex3f(0.0, 0.0, -1.0);
+	glVertex3f(0.0, 0.0, 1.0);
+	glEnd();
+}
+
+void CAdminControl::DrawPredictLine() {
+	bool NGFlag = false;
+
+	// 図形が閉じている場合は終了
+	if (shape_tail == NULL || shape_tail->GetIsClosedFlag() || shape_tail->GetVertexTail() == NULL)return;
+	if (mouseVertex == NULL) return;
+
+	// 破線を可能にする
+	glEnable(GL_LINE_STIPPLE);
+	glLineStipple(1, 0xF0F0);	//破線のパターンの指定（0xF0F0の部分がそれ）
+	glLineWidth(LINEWIDTH);
+	glBegin(GL_LINE_STRIP);
+
+	// 他交差
+	if (isShapeCross(mouseVertex)) NGFlag = true;
+	// 内包
+	if (isConnotation(mouseVertex)) NGFlag = true;
+	// 図形内の処理
+	if (!shape_tail->isDrawPredict(mouseVertex)) NGFlag = true;
+
+	if(NGFlag) glColor3f(1.0, 0.0, 0.0);
+	else glColor3f(0.0, 1.0, 0.0);
+
+	glVertex3f(shape_tail->GetVertexTail()->GetX(), shape_tail->GetVertexTail()->GetY(), shape_tail->GetVertexTail()->GetZ());
+	glVertex3f(mouseVertex->GetX(), mouseVertex->GetY(), mouseVertex->GetZ());
+
+	glEnd();
+	glDisable(GL_LINE_STIPPLE);
+}
+
 
 void CAdminControl::SetVertex(float mouse_x, float mouse_y) {
 	CMath math;
@@ -81,6 +153,10 @@ void CAdminControl::SetVertex(float mouse_x, float mouse_y) {
 
 	if (!shape_tail->isSelfCrossedByHourGlassType()) closeShape();
 
+}
+
+void CAdminControl::SetMouseVertex(float mouse_x, float mouse_y) {
+	mouseVertex->SetVertex(mouse_x, mouse_y);
 }
 
 bool CAdminControl::isShapeCross(CVertex* newVertex) {
@@ -112,19 +188,19 @@ bool CAdminControl::isConnotation(CVertex* newVertex) {
 bool CAdminControl::isConnotationVertex(CVertex* newVertex) {
 	CMath math;
 	float sumAngle = 0;
-	CVector* a = new CVector();
-	CVector* b = new CVector();
-
+	
 	for (CShape* currentShape = shape_head; currentShape != shape_tail; currentShape = currentShape->GetNext()) {
 
-		for (CVertex* current = currentShape->GetVertexHead(); current->GetNext() != NULL; current = current->GetNext()) {
+		/*for (CVertex* current = currentShape->GetVertexHead(); current->GetNext() != NULL; current = current->GetNext()) {
 			a->SetByVertex(newVertex, current);
 			b->SetByVertex(newVertex, current->GetNext());
 
 			sumAngle += math.calcAngle(a, b);
-		}
+		}*/
+
+		sumAngle = math.calcAngleByShape(currentShape, newVertex);
 	}
-	delete a, b;
+
 
 	if (3.10 * 2 < math.absFloat(sumAngle)) return true;
 	return false;
@@ -135,8 +211,6 @@ bool CAdminControl::isConnotationShape(CVertex* newVertex) {
 	CMath math;
 	float sumAngle = 0;
 	float tanAnglel;
-	CVector* a = new CVector();
-	CVector* b = new CVector();
 
 	// もし図形が閉じれるのであれば閉じる
 	if ((shape_tail->GetVertexCount() >= 3) && (math.calcDistance(shape_tail->GetVertexHead(), newVertex) < CLOSE_DISTANCE)) {
@@ -148,7 +222,6 @@ bool CAdminControl::isConnotationShape(CVertex* newVertex) {
 			for (CVertex* current = currentShape->GetVertexHead(); current->GetNext() != NULL; current = current->GetNext()) {
 				if (math.calcAngleByShape(shape_tail, current) > 3.10 * 2) {
 					shape_tail->freeVertexTail();
-					delete a, b;
 					return true;
 				}
 
@@ -156,7 +229,6 @@ bool CAdminControl::isConnotationShape(CVertex* newVertex) {
 		}
 		shape_tail->freeVertexTail();
 	}
-	delete a, b;
 	return false;
 }
 

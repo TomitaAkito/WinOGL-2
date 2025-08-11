@@ -52,6 +52,7 @@ void CShape::SetVertexByPointer(CVertex* newVertex) {
 		return;
 	}
 	
+	// ©Œğ·‚µ‚È‚¯‚ê‚ÎOK
 	if (!isSelfCrossed(newVertex)) {
 		NormalAddVertex(newVertex);
 	}	
@@ -88,6 +89,19 @@ void CShape::SetIsClosed(bool isClosedFlag) {
 
 bool CShape::GetIsClosedFlag() {
 	return isClosedFlag;
+}
+
+bool CShape::isDrawPredict(CVertex* mouseVertex) {
+	CMath math;
+	if (math.isXYZ(mouseVertex, this->GetVertexHead())) return true;
+
+	// ’¸“_”‚ª3ˆÈ‰º‚Ìê‡‚Íİ’è
+	if (vertexCount < 3) return true;
+
+	// ©Œğ·‚µ‚È‚¯‚ê‚ÎOK
+	if (!isSelfCrossed(mouseVertex)) return true;
+
+	return false;
 }
 
 bool CShape::isSelfCrossed(CVertex* newVertex) {

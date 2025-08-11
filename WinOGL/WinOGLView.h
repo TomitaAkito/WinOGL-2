@@ -49,10 +49,16 @@ private:
 	HGLRC m_hRC;
 	CAdminControl AC;  // 管理コントロールのインスタンス
 public:
+	void SetLButton(UINT nFlags, CPoint point);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnDestroy();
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnSizedown();
+	afx_msg void OnSizeup();
+	afx_msg void OnAxis();
+	afx_msg void OnUpdateAxis(CCmdUI* pCmdUI);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 };
 
 #ifndef _DEBUG  // WinOGLView.cpp のデバッグ バージョン

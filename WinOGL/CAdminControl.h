@@ -5,11 +5,14 @@
 class CAdminControl{
 #pragma region メンバ変数
 public:
+	bool AxisFlag; // 座標軸を描画するか
+private:
 	CShape* shape_head;  // 形状を管理するオブジェクト
 	CShape* shape_tail;  // 形状の末尾ポインタ
 	float CLOSE_DISTANCE; // どれくらいで閉じるか
-private:
-
+	float POINTSIZE; // 頂点のサイズ
+	float LINEWIDTH; // 線のサイズ
+	CVertex* mouseVertex; // マウス座標
 #pragma endregion
 
 public:
@@ -40,6 +43,26 @@ public:
 	/// 線を描画
 	/// </summary>
 	void DrawLine();
+
+	/// <summary>
+	/// 点と線のサイズ変更
+	/// </summary>
+	void DrawSizeChangeUP();
+
+	/// <summary>
+	/// 点と線のサイズ変更
+	/// </summary>
+	void DrawSizeChangeDOWN();
+
+	/// <summary>
+	/// 座標軸の描画
+	/// </summary>
+	void DrawAxis();
+
+	/// <summary>
+	/// 予測線の描画
+	/// </summary>
+	void DrawPredictLine();
 #pragma endregion
 
 #pragma region Set系/Get系
@@ -50,6 +73,13 @@ public:
 	/// <param name="mouse_x">マウスのX座標</param>
 	/// <param name="mouse_y">マウスのY座標</param>
 	void SetVertex(float mouse_x, float mouse_y);
+
+	/// <summary>
+	/// マウス座標を設定
+	/// </summary>
+	/// <param name="mouse_x">マウスのX座標</param>
+	/// <param name="mouse_y">マウスのY座標</param>
+	void SetMouseVertex(float mouse_x, float mouse_y);
 
 #pragma endregion
 

@@ -97,6 +97,13 @@ private:
 #pragma region 判定系
 
 	/// <summary>
+	/// 描画できるかを判定
+	/// </summary>
+	/// <param name="mouseVertex">マウス座標</param>
+	/// <returns>設置できる場合はtrue、できない場合はfalse</returns>
+	bool isDrawPredict(CVertex* mouseVertex);
+
+	/// <summary>
 	/// 自交差を判定
 	/// </summary>
 	/// <param name="newVertex">新しい頂点</param>

@@ -44,7 +44,7 @@ float CMath::calcAngleByShape(CShape* currentShape, CVertex* vertex) {
         else result -= tanAngle;
     }
     delete a, b;
-    return result;
+    return absFloat(result);
 }
 
 float CMath::absFloat(float value) {

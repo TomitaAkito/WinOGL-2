@@ -28,6 +28,11 @@ BEGIN_MESSAGE_MAP(CWinOGLView, CView)
 	ON_WM_DESTROY()
 	ON_WM_ERASEBKGND()
 	ON_WM_SIZE()
+	ON_COMMAND(ID_SIZEDOWN, &CWinOGLView::OnSizedown)
+	ON_COMMAND(ID_SIZEUP, &CWinOGLView::OnSizeup)
+	ON_COMMAND(ID_AXIS, &CWinOGLView::OnAxis)
+	ON_UPDATE_COMMAND_UI(ID_AXIS, &CWinOGLView::OnUpdateAxis)
+	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
 // CWinOGLView コンストラクション/デストラクション
@@ -97,6 +102,15 @@ CWinOGLDoc* CWinOGLView::GetDocument() const // デバッグ以外のバージ�
 
 void CWinOGLView::OnLButtonDown(UINT nFlags, CPoint point)
 {
+	SetLButton(nFlags, point);
+
+	AC.SetVertex(x_Ldown, y_Ldown);
+
+	RedrawWindow();
+	CView::OnLButtonDown(nFlags, point);
+}
+
+void CWinOGLView::SetLButton(UINT nFlags, CPoint point) {
 	// 描画領域の大きさを取得
 	CRect rect;
 	GetClientRect(rect);
@@ -119,15 +133,9 @@ void CWinOGLView::OnLButtonDown(UINT nFlags, CPoint point)
 	if (rectWidth > rectHeight) {
 		x_Ldown *= rectWidth / rectHeight;
 	}
-	else
-	{
+	else {
 		y_Ldown *= rectHeight / rectWidth;
 	}
-
-	AC.SetVertex(x_Ldown, y_Ldown);
-
-	RedrawWindow();
-	CView::OnLButtonDown(nFlags, point);
 }
 
 int CWinOGLView::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -198,4 +206,29 @@ void CWinOGLView::OnSize(UINT nType, int cx, int cy)
 	glMatrixMode(GL_MODELVIEW);
 	RedrawWindow();
 	wglMakeCurrent(clientDC.m_hDC, NULL);
+}
+void CWinOGLView::OnSizedown() {
+	AC.DrawSizeChangeDOWN();
+	RedrawWindow();
+}
+
+void CWinOGLView::OnSizeup() {
+	AC.DrawSizeChangeUP();
+	RedrawWindow();
+}
+
+void CWinOGLView::OnAxis() {
+	AC.AxisFlag = !AC.AxisFlag;
+	RedrawWindow();
+}
+
+void CWinOGLView::OnUpdateAxis(CCmdUI* pCmdUI) {
+	pCmdUI->SetCheck(AC.AxisFlag);
+}
+
+void CWinOGLView::OnMouseMove(UINT nFlags, CPoint point) {
+	SetLButton(nFlags, point);
+	AC.SetMouseVertex(x_Ldown, y_Ldown);
+	RedrawWindow();
+	CView::OnMouseMove(nFlags, point);
 }
