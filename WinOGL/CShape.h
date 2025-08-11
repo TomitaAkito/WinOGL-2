@@ -51,6 +51,12 @@ private:
 	void SetVertexByPointer(CVertex* newVertex);
 
 	/// <summary>
+	/// 通常の頂点追加方法
+	/// </summary>
+	/// <param name="newVertex">新しい頂点</param>
+	void NormalAddVertex(CVertex* newVertex);
+
+	/// <summary>
 	/// 次のポインタを取得
 	/// </summary>
 	/// <returns>次のポインタ</returns>
@@ -61,6 +67,12 @@ private:
 	/// </summary>
 	/// <param name="nextShape">設定する次の CShape オブジェクトへのポインタ</param>
 	void SetNext(CShape* nextShape);
+
+	/// <summary>
+	/// 頂点数を設定
+	/// </summary>
+	/// <param name="num">頂点数</param>
+	void SetVertexCount(int num);
 
 	/// <summary>
 	/// 頂点数を取得
@@ -90,6 +102,22 @@ private:
 	/// <param name="newVertex">新しい頂点</param>
 	/// <returns>自交差している場合はtrue、していない場合はfalse</returns>
 	bool isSelfCrossed(CVertex* newVertex);
+
+	/// <summary>
+	/// 砂時計のように始点と終点を配置した場合に自交差しないか判定
+	/// </summary>
+	/// <returns>自交差している場合はtrue、していない場合はfalse</returns>
+	bool isSelfCrossedByHourGlassType();
+
+	/// <summary>
+	/// 二つの線分が交差しているか判定
+	/// </summary>
+	/// <param name="As">線分Aの開始地点</param>
+	/// <param name="Ae">線分Aの終了地点</param>
+	/// <param name="Bs">線分Bの開始地点</param>
+	/// <param name="Be">線分Bの終了地点</param>
+	/// <returns></returns>
+	bool isSelfCrossedBy2Lines(CVertex* As, CVertex* Ae, CVertex* Bs, CVertex* Be);
 
 #pragma endregion
 

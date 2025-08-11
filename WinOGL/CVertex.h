@@ -44,6 +44,13 @@ public:
 	float GetZ();
 
 	/// <summary>
+	/// X座標・Y座標を設定
+	/// </summary>
+	/// <param name="x">x座標</param>
+	/// <param name="y">y座標</param>
+	void SetXY(float x, float y);
+
+	/// <summary>
 	///	次の頂点アドレスを取得
 	/// </summary>
 	/// <returns>アドレス</returns>

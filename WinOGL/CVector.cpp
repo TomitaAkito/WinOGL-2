@@ -11,6 +11,11 @@ CVector::CVector(float x, float y) {
 	this->y = y; // Y¬•ª‚Ì‰Šú‰»
 }
 
+CVector::CVector(CVertex* a, CVertex* b) {
+	this->x = b->GetX() - a->GetX();
+	this->y = b->GetY() - a->GetY();
+}
+
 CVector::~CVector() {
 }
 

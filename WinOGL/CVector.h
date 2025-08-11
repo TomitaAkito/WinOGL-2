@@ -14,6 +14,8 @@ public:
 	CVector();
 	// コンストラクタ（引数あり）
 	CVector(float x, float y);
+	// コンストラクタ（頂点型）
+	CVector(CVertex* a, CVertex* b);
 	// デストラクタ
 	~CVector();
 #pragma endregion

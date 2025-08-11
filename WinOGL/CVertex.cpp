@@ -22,6 +22,11 @@ float CVertex::GetZ() {
 	return z;
 }
 
+void CVertex::SetXY(float x, float y) {
+	SetX(x);
+	SetY(y);
+}
+
 CVertex* CVertex::GetNext() {
 	return next;
 }
@@ -35,6 +40,7 @@ void CVertex::SetX(float x) {
 }
 
 void CVertex::SetY(float y) {
+	this->y = y;
 }
 
 void CVertex::SetZ(float z) {

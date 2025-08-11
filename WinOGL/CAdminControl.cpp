@@ -69,25 +69,30 @@ void CAdminControl::SetVertex(float mouse_x, float mouse_y) {
 		shape_tail = shape_head; // 最初の形状はヘッドとテールが同じ
 	}
 	
-	if (shape_tail->GetVertexCount() >= 3) {
-		// 新しい頂点を追加
-		float distance = math.calcDistance(shape_tail->GetVertexHead(), newVertex);
-
-		if (distance < 0.05f) {
-			delete newVertex; // 距離が小さい場合は新しい頂点を削除
-			
-			shape_tail->SetVertex(shape_tail->GetVertexHead()->GetX(), shape_tail->GetVertexHead()->GetY());
-
-			shape_tail->SetIsClosed(true); // 閉じた図形にする
-			CShape* newShape = new CShape();
-			shape_tail->SetNext(newShape); // 新しい図形を次に設定
-			shape_tail = newShape; // テールを新しい図形に更新
-		}
-		else {
-			shape_tail->SetVertexByPointer(newVertex); // 新しい頂点を追加
-		}
-	}
-	else {
+	// 頂点数が3より小さいのであれば頂点追加
+	if (shape_tail->GetVertexCount() < 3) {
 		shape_tail->SetVertexByPointer(newVertex); // 新しい頂点を追加
+		return;
+	}
+	
+	shape_tail->SetVertexByPointer(newVertex); // 新しい頂点を追加
+
+	if (!shape_tail->isSelfCrossedByHourGlassType()) closeShape();
+
+}
+
+void CAdminControl::closeShape() {
+	CMath math;
+
+	if ((shape_tail->GetVertexCount() >= 4) && (math.calcDistance(shape_tail->GetVertexHead(), shape_tail->GetVertexTail()) < 0.05f )) {
+
+		// 閉じる図形の処理
+		shape_tail->GetVertexTail()->SetVertex(shape_tail->GetVertexHead()->GetX(), shape_tail->GetVertexHead()->GetY());
+		shape_tail->SetIsClosed(true); // 閉じた図形にする
+		
+		// 図形リストに新しい図形を加える
+		CShape* newShape = new CShape();
+		shape_tail->SetNext(newShape); // 新しい図形を次に設定
+		shape_tail = newShape; // テールを新しい図形に更新
 	}
 }

@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "CShape.h"
+#include "CVector.h"
+#include "CMath.h"
 
 CShape::CShape() {
 	// 初期化
@@ -28,26 +30,39 @@ void CShape::SetVertex(float x, float y) {
 }
 
 void CShape::SetVertexByPointer(CVertex* newVertex) {
+	
 	// もしvertex_headがNULLならば、最初の頂点として設定
 	if (vertex_head == NULL) {
 		vertex_head = newVertex;
 		vertex_tail = newVertex; // 最初の頂点はヘッドとテールが同じ
 		vertexCount++; // 頂点の数を増やす
+		return;
 	}
-	// 頂点数が3以下の場合は設定
-	else if (vertexCount < 3) {
-		// 既存の頂点リストに追加
-		vertex_tail->SetNext(newVertex);
-		newVertex->SetPre(vertex_tail);
-		vertex_tail = newVertex; // 新しい頂点をテールとして設定
-		vertexCount++; // 頂点の数を増やす
-	}
-	else if (isSelfCrossed(newVertex)){
 
-
-
+	// vertex_headと一緒ならこのまま処理を実行
+	CMath math;
+	if (math.isXYZ(newVertex, this->GetVertexHead())) {
+		NormalAddVertex(newVertex);
+		return;
 	}
 	
+	// 頂点数が3以下の場合は設定
+	if (vertexCount < 3) {
+		NormalAddVertex(newVertex);
+		return;
+	}
+	
+	if (!isSelfCrossed(newVertex)) {
+		NormalAddVertex(newVertex);
+	}	
+}
+
+void CShape::NormalAddVertex(CVertex* newVertex) {
+	// 既存の頂点リストに追加
+	vertex_tail->SetNext(newVertex);
+	newVertex->SetPre(vertex_tail);
+	vertex_tail = newVertex; // 新しい頂点をテールとして設定
+	vertexCount++; // 頂点の数を増やす
 }
 
 CShape* CShape::GetNext() {
@@ -57,6 +72,10 @@ CShape* CShape::GetNext() {
 
 void CShape::SetNext(CShape* nextShape) {
 	this->next = nextShape;
+}
+
+void CShape::SetVertexCount(int num) {
+	this->vertexCount = num;
 }
 
 int CShape::GetVertexCount() {
@@ -72,6 +91,47 @@ bool CShape::GetIsClosedFlag() {
 }
 
 bool CShape::isSelfCrossed(CVertex* newVertex) {
+
+	for (CVertex* current = this->GetVertexHead(); current->GetNext() != this->GetVertexTail(); current = current->GetNext()) {
+		if(isSelfCrossedBy2Lines(this->GetVertexTail(),newVertex, current, current->GetNext())) return true;
+	}
+
+	return false;
+}
+
+bool CShape::isSelfCrossedByHourGlassType() {
+	// 例外処理
+	if (vertex_head == NULL) return false;
+	if (vertex_head->GetNext() == NULL) return false;
+
+	for (CVertex* current = this->GetVertexHead()->GetNext(); current->GetNext() != this->GetVertexTail(); current = current->GetNext()) {
+		if (isSelfCrossedBy2Lines(this->GetVertexTail(), this->GetVertexHead(), current, current->GetNext())) return true;
+	}
+	return false;
+}
+
+bool CShape::isSelfCrossedBy2Lines(CVertex* As, CVertex* Ae, CVertex* Bs, CVertex* Be) {
+
+	// ベクトルに変換
+	CVector* a = new CVector(As, Ae);
+	CVector* b = new CVector(Bs, Be);
+	CVector* a1 = new CVector(As, Bs);
+	CVector* b1 = new CVector(Bs, As);
+	CVector* a2 = new CVector(As, Be);
+	CVector* b2 = new CVector(Bs, Ae);
+	CMath math;
+
+	// 外積を計算
+	float ca1 = math.calcCrossProduct(a, a1);
+	float ca2 = math.calcCrossProduct(a, a2);
+	float cb1 = math.calcCrossProduct(b, b1);
+	float cb2 = math.calcCrossProduct(b, b2);
+
+	if ((ca1 * ca2 <= 0) && (cb1 * cb2 <= 0)) return true;
+
+	// メモリ解放
+	delete a, b, a1, b1, a2, b2;
+
 	return false;
 }
 

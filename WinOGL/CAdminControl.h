@@ -51,5 +51,13 @@ public:
 	void SetVertex(float mouse_x, float mouse_y);
 
 #pragma endregion
+
+#pragma region その他処理
+
+	/// <summary>
+	/// 図形を閉じるかの判定を行い、閉じる必要がある場合は図形を閉じる
+	/// </summary>
+	void closeShape();
+#pragma endregion
 };
 
