@@ -101,8 +101,7 @@ bool CShape::isSelfCrossed(CVertex* newVertex) {
 
 bool CShape::isSelfCrossedByHourGlassType() {
 	// —áŠOˆ—
-	if (vertex_head == NULL) return false;
-	if (vertex_head->GetNext() == NULL) return false;
+	if (this->GetVertexCount() <= 3) return false;
 
 	for (CVertex* current = this->GetVertexHead()->GetNext(); current->GetNext() != this->GetVertexTail(); current = current->GetNext()) {
 		if (isSelfCrossedBy2Lines(this->GetVertexTail(), this->GetVertexHead(), current, current->GetNext())) return true;

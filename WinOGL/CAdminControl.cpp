@@ -60,25 +60,38 @@ void CAdminControl::SetVertex(float mouse_x, float mouse_y) {
 	CMath math;
 
 	// マウス座標を使用して新しい頂点を作成
-	CVertex* newVertex = new CVertex();
-	newVertex->SetVertex(mouse_x, mouse_y);
+	CVertex* newVertex = new CVertex(mouse_x, mouse_y);
 
 	// 図形を管理するオブジェクトが存在しない場合は新規作成
 	if (shape_head == NULL) {
 		shape_head = new CShape();
 		shape_tail = shape_head; // 最初の形状はヘッドとテールが同じ
 	}
+
+	// 他交差する場合は終了
+	if (isShapeCross(newVertex)) return;
 	
-	// 頂点数が3より小さいのであれば頂点追加
-	if (shape_tail->GetVertexCount() < 3) {
-		shape_tail->SetVertexByPointer(newVertex); // 新しい頂点を追加
-		return;
-	}
-	
-	shape_tail->SetVertexByPointer(newVertex); // 新しい頂点を追加
+	// 新しい頂点を追加
+	shape_tail->SetVertexByPointer(newVertex);
 
 	if (!shape_tail->isSelfCrossedByHourGlassType()) closeShape();
 
+}
+
+bool CAdminControl::isShapeCross(CVertex* newVertex) {
+
+	// 1つ目は許す
+	if (shape_tail->GetVertexCount() < 1) return false;
+	
+	for (CShape* currentShape = shape_head; currentShape != shape_tail; currentShape = currentShape->GetNext()) {
+		
+		for (CVertex* current = currentShape->GetVertexHead(); current->GetNext() != NULL; current = current->GetNext()) {
+			if (currentShape->isSelfCrossedBy2Lines(shape_tail->GetVertexTail(), newVertex, current, current->GetNext())) return true;
+		}
+
+	}
+
+	return false;
 }
 
 void CAdminControl::closeShape() {

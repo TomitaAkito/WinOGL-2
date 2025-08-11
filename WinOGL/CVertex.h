@@ -18,6 +18,14 @@ public:
 	/// コンストラクタ
 	/// </summary>
 	CVertex();
+
+	/// <summary>
+	/// コンストラクタ（引数あり）
+	/// </summary>
+	/// <param name="x">x座標</param>
+	/// <param name="y">y座標</param>
+	CVertex(float x,float y);
+	
 	/// <summary>
 	/// デストラクタ
 	/// </summary>

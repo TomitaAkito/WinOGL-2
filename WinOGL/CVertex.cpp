@@ -9,6 +9,10 @@ CVertex::CVertex() {
 	y = 0.0f;
 	z = 0.0f;
 }
+CVertex::CVertex(float x, float y) {
+	SetX(x);
+	SetY(y);
+}
 CVertex::~CVertex() {
 }
 float CVertex::GetX() {

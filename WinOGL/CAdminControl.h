@@ -52,6 +52,16 @@ public:
 
 #pragma endregion
 
+#pragma region 判定
+
+	/// <summary>
+	/// 図形同士が交差(他交差)しているか判定
+	/// </summary>
+	/// <param name="newVertex">新しい頂点</param>
+	/// <returns>他交差している場合はtrue、していない場合はfalse</returns>
+	bool isShapeCross(CVertex* newVertex);
+#pragma endregion
+
 #pragma region その他処理
 
 	/// <summary>
