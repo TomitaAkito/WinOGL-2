@@ -172,3 +172,12 @@ void CShape::freeVertex(float x, float y) {
 		current = current->GetNext(); // ŽŸ‚Ì’¸“_‚ÖˆÚ“®
 	}
 }
+
+void CShape::freeVertexTail() {
+
+	vertex_tail = vertex_tail->GetPre();
+	isClosedFlag = false;
+	vertexCount--;
+	delete vertex_tail->GetNext();
+	vertex_tail->SetNext(NULL);
+}

@@ -35,3 +35,8 @@ void CVector::SetY(float y) {
 float CVector::GetY() {
 	return y; // Y¬•ª‚ðŽæ“¾
 }
+
+void CVector::SetByVertex(CVertex* a, CVertex* b) {
+	this->x = b->GetX() - a->GetX();
+	this->y = b->GetY() - a->GetY();
+}

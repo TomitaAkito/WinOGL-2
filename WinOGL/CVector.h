@@ -46,5 +46,12 @@ public:
 	/// </summary>
 	/// <returns>Y成分</returns>
 	float GetY();
+
+	/// <summary>
+	/// 頂点からベクトルを算出して格納
+	/// </summary>
+	/// <param name="a">ベクトル a</param>
+	/// <param name="b">ベクトル b</param>
+	void SetByVertex(CVertex* a,CVertex* b);
 };
 

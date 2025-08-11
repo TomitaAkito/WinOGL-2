@@ -135,6 +135,11 @@ private:
 	/// <param name="y">yÀ•W</param>
 	void freeVertex(float x,float y);
 
+	/// <summary>
+	/// vertex_tail‚ğíœ
+	/// </summary>
+	void freeVertexTail();
+
 #pragma endregion
 };
 

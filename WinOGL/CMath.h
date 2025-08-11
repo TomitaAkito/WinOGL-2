@@ -2,6 +2,7 @@
 #include <math.h>
 #include "CVertex.h"
 #include "CVector.h"
+#include "CShape.h"
 
 class CMath{
 public:
@@ -22,11 +23,42 @@ public:
 	float calcCrossProduct(CVector* a, CVector* b);
 
 	/// <summary>
-	/// 座標が一致しているか確認する
+	/// ベクトルの内積を計算
+	/// </summary>
+	/// <param name="a">ベクトル a</param>
+	/// <param name="b">ベクトル b</param>
+	/// <returns>内積の結果</returns>
+	float calcInnerProduct(CVector* a, CVector* b);
+
+	/// <summary>
+	/// 座標が一致しているか確認
 	/// </summary>
 	/// <param name="a">頂点 a</param>
 	/// <param name="b">頂点 b</param>
 	/// <returns>一致している場合はtrue、していない場合はfalse</returns>
 	bool isXYZ(CVertex* a, CVertex* b);
+
+	/// <summary>
+	/// 2つの線分の成す角度を計算
+	/// </summary>
+	/// <param name="a">ベクトル a</param>
+	/// <param name="b">ベクトル b</param>
+	/// <returns>角度</returns>
+	float calcAngle(CVector* a, CVector* b);
+
+	/// <summary>
+	/// 該当図形と頂点のなす角を算出
+	/// </summary>
+	/// <param name="currentShape">図形</param>
+	/// <param name="vertex">頂点</param>
+	/// <returns>角度</returns>
+	float calcAngleByShape(CShape* currentShape, CVertex* vertex);
+
+	/// <summary>
+	/// float型の数字の絶対値を返す
+	/// </summary>
+	/// <param name="value">float型の数字</param>
+	/// <returns>絶対値の数字</returns>
+	float absFloat(float value);
 };
 

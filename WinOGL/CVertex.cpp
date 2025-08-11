@@ -12,6 +12,7 @@ CVertex::CVertex() {
 CVertex::CVertex(float x, float y) {
 	SetX(x);
 	SetY(y);
+	z = 0.0f;
 }
 CVertex::~CVertex() {
 }

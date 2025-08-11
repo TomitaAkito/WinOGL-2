@@ -7,6 +7,7 @@ class CAdminControl{
 public:
 	CShape* shape_head;  // 形状を管理するオブジェクト
 	CShape* shape_tail;  // 形状の末尾ポインタ
+	float CLOSE_DISTANCE; // どれくらいで閉じるか
 private:
 
 #pragma endregion
@@ -60,6 +61,27 @@ public:
 	/// <param name="newVertex">新しい頂点</param>
 	/// <returns>他交差している場合はtrue、していない場合はfalse</returns>
 	bool isShapeCross(CVertex* newVertex);
+
+	/// <summary>
+	/// 頂点・図形が内包しているか判定
+	/// </summary>
+	/// <param name="newVertex">新しい頂点</param>
+	/// <returns>内包する場合はtrue、しない場合はfalse</returns>
+	bool isConnotation(CVertex* newVertex);
+
+	/// <summary>
+	/// 頂点が内包しているか判定
+	/// </summary>
+	/// <param name="newVertex">新しい頂点</param>
+	/// <returns>内包する場合はtrue、しない場合はfalse</returns>
+	bool isConnotationVertex(CVertex* newVertex);
+
+	/// <summary>
+	/// 図形が内包しているか判定
+	/// </summary>
+	/// <param name="newVertex">新しい頂点</param>
+	/// <returns>内包する場合はtrue、しない場合はfalse</returns>
+	bool isConnotationShape(CVertex* newVertex);
 #pragma endregion
 
 #pragma region その他処理

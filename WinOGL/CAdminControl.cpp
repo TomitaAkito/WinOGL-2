@@ -5,6 +5,7 @@
 CAdminControl::CAdminControl(){
 	shape_head = NULL;
 	shape_tail = NULL;
+	CLOSE_DISTANCE = 0.05f;
 }
 
 CAdminControl::~CAdminControl()
@@ -29,7 +30,8 @@ void CAdminControl::DrawVertex() {
 	// 頂点リストを走査して頂点を描画
 	for (CShape* current_shape = shape_head; current_shape != NULL; current_shape = current_shape->GetNext()) {
 		for (CVertex* current = current_shape->GetVertexHead(); current != NULL; current = current->GetNext()) {
-			glVertex3f(current->GetX(), current->GetY(), current->GetZ());
+			//glVertex3f(current->GetX(), current->GetY(), current->GetZ());
+			glVertex2f(current->GetX(), current->GetY());
 		}
 	}
 	
@@ -71,6 +73,9 @@ void CAdminControl::SetVertex(float mouse_x, float mouse_y) {
 	// 他交差する場合は終了
 	if (isShapeCross(newVertex)) return;
 	
+	// 内包する場合は終了
+	if (isConnotation(newVertex)) return;
+
 	// 新しい頂点を追加
 	shape_tail->SetVertexByPointer(newVertex);
 
@@ -94,10 +99,71 @@ bool CAdminControl::isShapeCross(CVertex* newVertex) {
 	return false;
 }
 
+bool CAdminControl::isConnotation(CVertex* newVertex) {
+	// 頂点が内包しているか
+	if(isConnotationVertex(newVertex)) return true;
+
+	// 図形が内包しているか
+	if (isConnotationShape(newVertex)) return true;
+
+	return false;
+}
+
+bool CAdminControl::isConnotationVertex(CVertex* newVertex) {
+	CMath math;
+	float sumAngle = 0;
+	CVector* a = new CVector();
+	CVector* b = new CVector();
+
+	for (CShape* currentShape = shape_head; currentShape != shape_tail; currentShape = currentShape->GetNext()) {
+
+		for (CVertex* current = currentShape->GetVertexHead(); current->GetNext() != NULL; current = current->GetNext()) {
+			a->SetByVertex(newVertex, current);
+			b->SetByVertex(newVertex, current->GetNext());
+
+			sumAngle += math.calcAngle(a, b);
+		}
+	}
+	delete a, b;
+
+	if (3.10 * 2 < math.absFloat(sumAngle)) return true;
+	return false;
+}
+
+bool CAdminControl::isConnotationShape(CVertex* newVertex) {
+	
+	CMath math;
+	float sumAngle = 0;
+	float tanAnglel;
+	CVector* a = new CVector();
+	CVector* b = new CVector();
+
+	// もし図形が閉じれるのであれば閉じる
+	if ((shape_tail->GetVertexCount() >= 3) && (math.calcDistance(shape_tail->GetVertexHead(), newVertex) < CLOSE_DISTANCE)) {
+		
+		shape_tail->SetVertex(shape_tail->GetVertexHead()->GetX(), shape_tail->GetVertexHead()->GetY());
+		shape_tail->SetIsClosed(true); // 閉じた図形にする
+
+		for (CShape* currentShape = shape_head; currentShape->GetNext() != NULL; currentShape = currentShape->GetNext()) {
+			for (CVertex* current = currentShape->GetVertexHead(); current->GetNext() != NULL; current = current->GetNext()) {
+				if (math.calcAngleByShape(shape_tail, current) > 3.10 * 2) {
+					shape_tail->freeVertexTail();
+					delete a, b;
+					return true;
+				}
+
+			}
+		}
+		shape_tail->freeVertexTail();
+	}
+	delete a, b;
+	return false;
+}
+
 void CAdminControl::closeShape() {
 	CMath math;
 
-	if ((shape_tail->GetVertexCount() >= 4) && (math.calcDistance(shape_tail->GetVertexHead(), shape_tail->GetVertexTail()) < 0.05f )) {
+	if ((shape_tail->GetVertexCount() >= 4) && (math.calcDistance(shape_tail->GetVertexHead(), shape_tail->GetVertexTail()) < CLOSE_DISTANCE )) {
 
 		// 閉じる図形の処理
 		shape_tail->GetVertexTail()->SetVertex(shape_tail->GetVertexHead()->GetX(), shape_tail->GetVertexHead()->GetY());
