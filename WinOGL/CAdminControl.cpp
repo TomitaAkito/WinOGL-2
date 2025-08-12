@@ -291,6 +291,21 @@ bool CAdminControl::isConnotationShape(CVertex* newVertex) {
 	return false;
 }
 
+bool CAdminControl::isConnotationMoveVertex(CVertex* vertex) {
+	
+	for (CShape* currentShape = shape_head; currentShape != NULL; currentShape = currentShape->GetNext()) {
+		if (currentShape->GetVertexHead() == NULL) continue;
+		for (CVertex* current = currentShape->GetVertexHead(); current != NULL; current = current->GetNext()) {
+			for (CShape* surchShape = shape_head; surchShape != NULL; surchShape = surchShape->GetNext()) {
+				if (surchShape->GetVertexHead() == NULL) continue;
+				if (surchShape == currentShape) continue;
+				CMath math;
+				if (math.calcAngleByShape(surchShape, current) > 6) return true;
+			}
+		}
+	}
+	return false;
+}
 void CAdminControl::Edit(float mouse_x, float mouse_y) {
 	// マウスを座標として指定する
 	CVertex* LMouseVertex = new CVertex(mouse_x,mouse_y);
@@ -375,58 +390,51 @@ void CAdminControl::moveByMouse() {
 }
 
 void CAdminControl::moveVertex(CVertex* mouseVertex) {
-	
-	//==1度移動させる
-	bool headTailFlag = false;
-	CVertex* tmpVertex = new CVertex(selectVertexPointer->GetX(), selectVertexPointer->GetY());
-	CShape* tmpShape = shape_head;
-	
-	// 形状が閉じており，なおかつvertex_tailと同じ座標の場合はそれも動かす
-	for (CShape* currentShape = shape_head; currentShape != NULL; currentShape = currentShape->GetNext()) {
-		if (!currentShape->GetIsClosedFlag())continue;
-		CMath math;
-		if (math.isXYZ(currentShape->GetVertexTail(), selectVertexPointer)) {
-			currentShape->GetVertexHead()->SetVertex(mouseVertex->GetX(), mouseVertex->GetY());
-			currentShape->GetVertexTail()->SetVertex(mouseVertex->GetX(), mouseVertex->GetY());
-			tmpShape = currentShape;
-			headTailFlag = true;
-		}
-	}
-	if(!headTailFlag) selectVertexPointer->SetVertex(mouseVertex->GetX(), mouseVertex->GetY());
 
-	//==問題ないかをチェックする
-	bool ERRFlag = false;
+	//== 座標を一時保存し、頂点を移動 ==
+	// 元の座標を保存
+	float originalX = selectVertexPointer->GetX();
+	float originalY = selectVertexPointer->GetY();
+
 	CShape* shape = serchShapeByVertex(selectVertexPointer); // 選択中の頂点が含まれる図形を取得
 	CMath math;
 
-	// 前のvertexを取得
+	// 選択した頂点が、閉じた図形の始点／終点と同じ位置にあるか判定
+	bool isClosedShapeEndpoint = false;
+	if (shape->GetIsClosedFlag() && math.isXYZ(selectVertexPointer, shape->GetVertexHead())) isClosedShapeEndpoint = true;
+
+	// 最初に頂点をマウス座標へ移動させる
+	selectVertexPointer->SetXY(mouseVertex->GetX(), mouseVertex->GetY());
+
+	// もし閉じた図形の端点なら、対になる頂点（Tail）も動かす
+	if (isClosedShapeEndpoint) shape->GetVertexTail()->SetXY(mouseVertex->GetX(), mouseVertex->GetY());
+
+	//== 問題ないかをチェック ==
+	bool ERRFlag = false;
+
+	// 前の頂点を取得
 	CVertex* preVertex = selectVertexPointer->GetPre();
-	if (preVertex == NULL && shape->GetIsClosedFlag() && math.isXYZ(shape->GetVertexHead(), selectVertexPointer))
-		preVertex = shape->GetVertexTail()->GetPre();
+	if (preVertex == NULL && isClosedShapeEndpoint) preVertex = shape->GetVertexTail()->GetPre();
 
-	// 次のvertexを取得
-	CVertex* nextVertex = selectLinePointer->GetNext();
-	if (shape->GetVertexTail() == nextVertex && shape->GetIsClosedFlag()) nextVertex = shape->GetVertexHead();
+	// 次の頂点を取得
+	CVertex* nextVertex = selectVertexPointer->GetNext();
+	if (nextVertex == shape->GetVertexTail() && shape->GetIsClosedFlag()) nextVertex = shape->GetVertexHead();
 
-	// 次のvertexを取得
-	if (shape->isMoveVertexSelfCross(selectVertexPointer, nextVertex,shape_head)) ERRFlag = true;
-	if (preVertex != NULL && shape->isMoveVertexSelfCross(preVertex, selectVertexPointer,shape_head))ERRFlag = true;
+	
+	// 交差判定
+	if (nextVertex != NULL && shape->isMoveVertexSelfCross(selectVertexPointer, nextVertex, shape_head)) ERRFlag = true;
+	if (!ERRFlag && preVertex != NULL && shape->isMoveVertexSelfCross(preVertex, selectVertexPointer, shape_head)) ERRFlag = true;
 
-	if (preVertex == NULL && shape->isMoveVertexSelfCross(selectVertexPointer,nextVertex, shape_head))ERRFlag = true;
-	if (nextVertex == NULL && shape->isMoveVertexSelfCross(preVertex,selectVertexPointer, shape_head))ERRFlag = true;
+	// 内包判定
+	if (isConnotationMoveVertex(selectVertexPointer)) ERRFlag = true;
+	
 
-
-	//==問題がある場合は元の座標に戻す
+	//== 問題がある場合は元の座標に戻す ==
 	if (ERRFlag) {
-		if (headTailFlag) {
-			tmpShape->GetVertexHead()->SetVertex(tmpVertex->GetX(), tmpVertex->GetY());
-			tmpShape->GetVertexTail()->SetVertex(tmpVertex->GetX(), tmpVertex->GetY());
-		}else {
-			selectVertexPointer->SetVertex(tmpVertex->GetX(), tmpVertex->GetY());
-		}
+		selectVertexPointer->SetXY(originalX, originalY);
+		if (isClosedShapeEndpoint) shape->GetVertexTail()->SetXY(originalX, originalY);
 	}
-
-	delete tmpVertex;
+		
 }
 
 void CAdminControl::closeShape() {

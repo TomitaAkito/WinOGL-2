@@ -149,17 +149,19 @@ bool CShape::isSelfCrossedBy2Lines(CVertex* As, CVertex* Ae, CVertex* Bs, CVerte
 bool CShape::isMoveVertexSelfCross(CVertex* selectVertex, CVertex* nextVertex, CShape* shape_head) {
 	for (CShape* currentShape = shape_head; currentShape != NULL; currentShape = currentShape->GetNext()) {
 		// —áŠOˆ—
-		if (currentShape->GetVertexHead() == NULL)continue;
-		if (currentShape->GetVertexCount() < 2)continue;
+		if (currentShape->GetVertexHead() == NULL) continue;
+		if (currentShape->GetVertexCount() < 2) continue;
 
 		for (CVertex* current = currentShape->GetVertexHead(); current->GetNext() != NULL; current = current->GetNext()) {
 
-			// —áŠOˆ—(selectVertex‚Æˆê’v‚·‚éê‡)
+			// --- —áŠOˆ— ---
 			if (selectVertex == current || nextVertex == current) continue;
-			if (selectVertex == vertex_head && this->GetIsClosedFlag()) selectVertex = vertex_tail;
-			if (selectVertex == current->GetNext()) continue;
+			CVertex* checkVertex = selectVertex;
+			if (checkVertex == vertex_head && this->GetIsClosedFlag()) checkVertex = vertex_tail;
+			if (checkVertex == current->GetNext()) continue;
 
-			if (current->GetNext() != NULL && isSelfCrossedBy2Lines(current, current->GetNext(), selectVertex, nextVertex)) {
+			// --- Œð·”»’è ---
+			if (isSelfCrossedBy2Lines(selectVertex, nextVertex, current, current->GetNext())) {
 				return true;
 			}
 		}

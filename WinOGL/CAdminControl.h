@@ -144,6 +144,13 @@ public:
 	/// <param name="newVertex">新しい頂点</param>
 	/// <returns>内包する場合はtrue、しない場合はfalse</returns>
 	bool isConnotationShape(CVertex* newVertex);
+
+	/// <summary>
+	/// 頂点を動かした際に内包するか判定
+	/// </summary>
+	/// <param name="vertex">移動している頂点</param>
+	/// <returns>内包する場合はtrue、しない場合はfalse</returns>
+	bool isConnotationMoveVertex(CVertex* vertex);
 #pragma endregion
 
 #pragma region 編集
