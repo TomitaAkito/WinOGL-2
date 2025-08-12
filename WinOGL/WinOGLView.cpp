@@ -33,6 +33,9 @@ BEGIN_MESSAGE_MAP(CWinOGLView, CView)
 	ON_COMMAND(ID_AXIS, &CWinOGLView::OnAxis)
 	ON_UPDATE_COMMAND_UI(ID_AXIS, &CWinOGLView::OnUpdateAxis)
 	ON_WM_MOUSEMOVE()
+	ON_COMMAND(ID_EDIT, &CWinOGLView::OnEdit)
+	ON_UPDATE_COMMAND_UI(ID_EDIT, &CWinOGLView::OnUpdateEdit)
+	ON_WM_LBUTTONUP()
 END_MESSAGE_MAP()
 
 // CWinOGLView コンストラクション/デストラクション
@@ -104,7 +107,10 @@ void CWinOGLView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	SetLButton(nFlags, point);
 
-	AC.SetVertex(x_Ldown, y_Ldown);
+	AC.LButtonDownFlag = true;
+
+	if (AC.EditFlag) AC.Edit(x_Ldown, y_Ldown);
+	else  AC.SetVertex(x_Ldown, y_Ldown);
 
 	RedrawWindow();
 	CView::OnLButtonDown(nFlags, point);
@@ -229,6 +235,24 @@ void CWinOGLView::OnUpdateAxis(CCmdUI* pCmdUI) {
 void CWinOGLView::OnMouseMove(UINT nFlags, CPoint point) {
 	SetLButton(nFlags, point);
 	AC.SetMouseVertex(x_Ldown, y_Ldown);
+
+	if (AC.LButtonDownFlag && AC.EditFlag)AC.moveByMouse();
+
 	RedrawWindow();
 	CView::OnMouseMove(nFlags, point);
+}
+
+void CWinOGLView::OnEdit() {
+	// TODO: ここにコマンド ハンドラー コードを追加します。
+	AC.EditFlag = !AC.EditFlag;
+	RedrawWindow();
+}
+
+void CWinOGLView::OnUpdateEdit(CCmdUI* pCmdUI) {
+	pCmdUI->SetCheck(AC.EditFlag);
+}
+
+void CWinOGLView::OnLButtonUp(UINT nFlags, CPoint point) {
+	AC.LButtonDownFlag = false;
+	CView::OnLButtonUp(nFlags, point);
 }

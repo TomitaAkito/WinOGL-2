@@ -6,13 +6,21 @@ class CAdminControl{
 #pragma region メンバ変数
 public:
 	bool AxisFlag; // 座標軸を描画するか
+	bool EditFlag; // 編集モードにするか
+	bool LButtonDownFlag; // 左クリックが押下されているか
 private:
 	CShape* shape_head;  // 形状を管理するオブジェクト
 	CShape* shape_tail;  // 形状の末尾ポインタ
 	float CLOSE_DISTANCE; // どれくらいで閉じるか
 	float POINTSIZE; // 頂点のサイズ
 	float LINEWIDTH; // 線のサイズ
-	CVertex* mouseVertex; // マウス座標
+	CVertex* MoveMouseVertex; // マウス座標
+	CVertex* selectVertexPointer; // 選択された頂点
+	CVertex* selectLinePointer; // 選択された稜線の始点
+	CShape* selectShapePointer; // 選択された図形
+	bool selectVertexFlag; // 頂点を選択しているか
+	bool selectLineFlag; // 稜線を選択しているか
+	bool selectShapeFlag; // 図形を選択しているか
 #pragma endregion
 
 public:
@@ -63,6 +71,30 @@ public:
 	/// 予測線の描画
 	/// </summary>
 	void DrawPredictLine();
+
+	/// <summary>
+	/// 選択結果を描画する
+	/// </summary>
+	void DrawEdit();
+
+	/// <summary>
+	/// 引数の頂点の色を変更して描画
+	/// </summary>
+	/// <param name="vertex">頂点</param>
+	void DrawSelectVertex(CVertex* vertex);
+
+	/// <summary>
+	/// 引数の稜線の色を変更して描画
+	/// </summary>
+	/// <param name="lineStart">稜線の始点</param>
+	/// <param name="lineEnd">稜線の終点</param>
+	void DrawSelectLine(CVertex* lineStart,CVertex* lineEnd);
+
+	/// <summary>
+	/// 引数の図形の色を変更して描画
+	/// </summary>
+	/// <param name="shape">図形</param>
+	void DrawSelectShape(CShape* shape);
 #pragma endregion
 
 #pragma region Set系/Get系
@@ -114,12 +146,61 @@ public:
 	bool isConnotationShape(CVertex* newVertex);
 #pragma endregion
 
+#pragma region 編集
+	
+	/// <summary>
+	/// 編集モードを司る関数
+	/// </summary>
+	/// <param name="mouse_x">マウスのX座標</param>
+	/// <param name="mouse_y">マウスのY座標</param>
+	void Edit(float mouse_x, float mouse_y);
+
+	/// <summary>
+	/// 点の選択
+	/// </summary>
+	/// <param name="LMouseVertex">マウス座標</param>
+	/// <returns>選択できた場合はtrue、できなかった場合はfalse</returns>
+	bool selectVertex(CVertex* LMouseVertex);
+
+	/// <summary>
+	/// 線の選択
+	/// </summary>
+	/// <param name="LMouseVertex">マウス座標</param>
+	/// <returns>選択できた場合はtrue、できなかった場合はfalse</returns>
+	bool selectLine(CVertex* LMouseVertex);
+
+	/// <summary>
+	/// 図形の選択
+	/// </summary>
+	/// <param name="LMouseVertex">マウス座標</param>
+	/// <returns>選択できた場合はtrue、できなかった場合はfalse</returns>
+	bool selectShape(CVertex* LMouseVertex);
+
+	/// <summary>
+	/// 移動系を司る関数
+	/// </summary>
+	void moveByMouse();
+
+	/// <summary>
+	/// 頂点を移動
+	/// </summary>
+	/// <param name="mouseVertex">マウス座標</param>
+	void moveVertex(CVertex* mouseVertex);
+#pragma endregion
+
 #pragma region その他処理
 
 	/// <summary>
 	/// 図形を閉じるかの判定を行い、閉じる必要がある場合は図形を閉じる
 	/// </summary>
 	void closeShape();
+
+	/// <summary>
+	/// 頂点から図形を探索して返す
+	/// </summary>
+	/// <param name="vertex">頂点</param>
+	/// <returns>図形</returns>
+	CShape* serchShapeByVertex(CVertex* vertex);
 #pragma endregion
 };
 

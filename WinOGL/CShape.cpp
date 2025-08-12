@@ -91,15 +91,15 @@ bool CShape::GetIsClosedFlag() {
 	return isClosedFlag;
 }
 
-bool CShape::isDrawPredict(CVertex* mouseVertex) {
+bool CShape::isDrawPredict(CVertex* MoveMouseVertex) {
 	CMath math;
-	if (math.isXYZ(mouseVertex, this->GetVertexHead())) return true;
+	if (math.isXYZ(MoveMouseVertex, this->GetVertexHead())) return true;
 
 	// ’¸“_”‚ª3ˆÈ‰º‚Ìê‡‚Íİ’è
 	if (vertexCount < 3) return true;
 
 	// ©Œğ·‚µ‚È‚¯‚ê‚ÎOK
-	if (!isSelfCrossed(mouseVertex)) return true;
+	if (!isSelfCrossed(MoveMouseVertex)) return true;
 
 	return false;
 }
@@ -139,12 +139,31 @@ bool CShape::isSelfCrossedBy2Lines(CVertex* As, CVertex* Ae, CVertex* Bs, CVerte
 	float ca2 = math.calcCrossProduct(a, a2);
 	float cb1 = math.calcCrossProduct(b, b1);
 	float cb2 = math.calcCrossProduct(b, b2);
-
-	if ((ca1 * ca2 <= 0) && (cb1 * cb2 <= 0)) return true;
-
 	// ƒƒ‚ƒŠ‰ğ•ú
 	delete a, b, a1, b1, a2, b2;
 
+	if ((ca1 * ca2 <= 0) && (cb1 * cb2 <= 0)) return true;
+	return false;
+}
+
+bool CShape::isMoveVertexSelfCross(CVertex* selectVertex, CVertex* nextVertex, CShape* shape_head) {
+	for (CShape* currentShape = shape_head; currentShape != NULL; currentShape = currentShape->GetNext()) {
+		// —áŠOˆ—
+		if (currentShape->GetVertexHead() == NULL)continue;
+		if (currentShape->GetVertexCount() < 2)continue;
+
+		for (CVertex* current = currentShape->GetVertexHead(); current->GetNext() != NULL; current = current->GetNext()) {
+
+			// —áŠOˆ—(selectVertex‚Æˆê’v‚·‚éê‡)
+			if (selectVertex == current || nextVertex == current) continue;
+			if (selectVertex == vertex_head && this->GetIsClosedFlag()) selectVertex = vertex_tail;
+			if (selectVertex == current->GetNext()) continue;
+
+			if (current->GetNext() != NULL && isSelfCrossedBy2Lines(current, current->GetNext(), selectVertex, nextVertex)) {
+				return true;
+			}
+		}
+	}
 	return false;
 }
 

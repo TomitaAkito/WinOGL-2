@@ -59,6 +59,9 @@ public:
 	afx_msg void OnAxis();
 	afx_msg void OnUpdateAxis(CCmdUI* pCmdUI);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnEdit();
+	afx_msg void OnUpdateEdit(CCmdUI* pCmdUI);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 };
 
 #ifndef _DEBUG  // WinOGLView.cpp のデバッグ バージョン

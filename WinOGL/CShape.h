@@ -99,9 +99,9 @@ private:
 	/// <summary>
 	/// 描画できるかを判定
 	/// </summary>
-	/// <param name="mouseVertex">マウス座標</param>
+	/// <param name="MoveMouseVertex">マウス座標</param>
 	/// <returns>設置できる場合はtrue、できない場合はfalse</returns>
-	bool isDrawPredict(CVertex* mouseVertex);
+	bool isDrawPredict(CVertex* MoveMouseVertex);
 
 	/// <summary>
 	/// 自交差を判定
@@ -125,6 +125,15 @@ private:
 	/// <param name="Be">線分Bの終了地点</param>
 	/// <returns></returns>
 	bool isSelfCrossedBy2Lines(CVertex* As, CVertex* Ae, CVertex* Bs, CVertex* Be);
+
+	/// <summary>
+	/// 図形が自交差・他交差していないか判定
+	/// </summary>
+	/// <param name="selectVertex">選択中の頂点</param>
+	/// <param name="nextVertex">選択中の頂点の次の頂点</param>
+	/// <param name="shape_head">図形リストの頭</param>
+	/// <returns>交差していたらtrue、していなければfalse</returns>
+	bool isMoveVertexSelfCross(CVertex* selectVertex, CVertex* nextVertex, CShape* shape_head);
 
 #pragma endregion
 

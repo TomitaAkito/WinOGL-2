@@ -60,5 +60,29 @@ public:
 	/// <param name="value">float型の数字</param>
 	/// <returns>絶対値の数字</returns>
 	float absFloat(float value);
+
+	/// <summary>
+	/// 線と点の距離を算出する
+	/// </summary>
+	/// <param name="lineStart">線の始点</param>
+	/// <param name="lineEnd">線の終点</param>
+	/// <param name="vertex">点</param>
+	/// <returns>距離</returns>
+	float calcPointLineDistance(CVertex* lineStart, CVertex* lineEnd, CVertex* vertex);
+
+	/// <summary>
+	/// ベクトルからsinθを算出
+	/// </summary>
+	/// <param name="a">ベクトル a</param>
+	/// <param name="b">ベクトル b</param>
+	/// <returns>sinθ</returns>
+	float calcSinTheta(CVector* a, CVector* b);
+	
+	/// <summary>
+	/// ベクトルの大きさを算出
+	/// </summary>
+	/// <param name="a">ベクトル a</param>
+	/// <returns>ベクトルの大きさ</returns>
+	float calcVectorDistance(CVector* a);
 };
 

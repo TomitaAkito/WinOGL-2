@@ -23,7 +23,7 @@ bool CMath::isXYZ(CVertex* a, CVertex* b) {
 float CMath::calcAngle(CVector* a, CVector* b) {
     // 分母の内積
     float innerProduct = calcInnerProduct(a, b);
-    // 分母の外積
+    // 分子の外積
     float crossProduct = calcCrossProduct(a, b);
 
     return atan2(absFloat(crossProduct), innerProduct);
@@ -50,4 +50,28 @@ float CMath::calcAngleByShape(CShape* currentShape, CVertex* vertex) {
 float CMath::absFloat(float value) {
     if (value < 0) return value * (-1);
     return value;
+}
+
+float CMath::calcPointLineDistance(CVertex* lineStart, CVertex* lineEnd, CVertex* vertex) {
+    CVector* a = new CVector(lineStart, lineEnd);
+    CVector* b = new CVector(lineStart, vertex);
+
+    float distance = calcVectorDistance(b) * calcSinTheta(a, b);
+
+    delete a, b;
+
+    return distance;
+}
+
+float CMath::calcSinTheta(CVector* a, CVector* b) {
+    // 分子
+    float crossProduct = absFloat(calcCrossProduct(a, b));
+    // 分母
+    float vectorDistance = calcVectorDistance(a) * calcVectorDistance(b);
+
+    return crossProduct / vectorDistance;
+}
+
+float CMath::calcVectorDistance(CVector* a) {
+    return sqrt(pow(a->GetX(),2)+pow(a->GetY(),2));
 }
