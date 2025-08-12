@@ -62,6 +62,8 @@ public:
 	afx_msg void OnEdit();
 	afx_msg void OnUpdateEdit(CCmdUI* pCmdUI);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnAlldelete();
 };
 
 #ifndef _DEBUG  // WinOGLView.cpp のデバッグ バージョン

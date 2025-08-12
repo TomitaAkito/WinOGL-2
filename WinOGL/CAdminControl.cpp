@@ -23,6 +23,7 @@ CAdminControl::CAdminControl(){
 CAdminControl::~CAdminControl(){
 	delete MoveMouseVertex, selectVertexPointer, selectLinePointer;
 	delete selectShapePointer;
+	freeALLShape();
 }
 
 void CAdminControl::Draw()
@@ -306,18 +307,45 @@ bool CAdminControl::isConnotationMoveVertex(CVertex* vertex) {
 	}
 	return false;
 }
+bool CAdminControl::isConnotationFreeVertex(CVertex* vertex, CShape* shape) {
+
+	for (CShape* currentShape = shape_head; currentShape != NULL; currentShape = currentShape->GetNext()) {
+		for (CVertex* current = currentShape->GetVertexHead(); current != NULL; current = current->GetNext()) {
+			for (CShape* surchShape = shape_head; surchShape != NULL; surchShape = surchShape->GetNext()) {
+				if (surchShape->GetVertexHead() == NULL) continue;
+				if (surchShape == currentShape) continue;
+				CMath math;
+				if (math.calcAngleByShape(surchShape, current) > 6) return true;
+			}
+		}
+	}
+
+	return false;
+}
 void CAdminControl::Edit(float mouse_x, float mouse_y) {
 	// マウスを座標として指定する
 	CVertex* LMouseVertex = new CVertex(mouse_x,mouse_y);
-	selectVertexPointer = NULL;
-	selectVertexFlag = false;
-	selectLineFlag = false;
-	selectShapeFlag = false;
+
+	// 頂点の挿入用に現時点のselectLineを保存
+	CVertex* tmpSelectLine = selectLinePointer;
 
 	// 探索
 	bool VertexFlag = selectVertex(LMouseVertex);
 	bool LineFlag = selectLine(LMouseVertex);	
 	bool ShapeFlag = selectShape(LMouseVertex);
+
+	// 点を挿入するか
+	if (selectLineFlag && ShapeFlag && tmpSelectLine == selectLinePointer) {
+		insertVertex(LMouseVertex);
+		selectLineFlag = false;
+		selectVertexFlag = true;
+		return;
+	}
+
+	selectVertexFlag = false;
+	selectLineFlag = false;
+	selectShapeFlag = false;
+
 
 	// 優先順位を設ける
 	if (VertexFlag) selectVertexFlag = true;
@@ -391,6 +419,8 @@ void CAdminControl::moveByMouse() {
 
 void CAdminControl::moveVertex(CVertex* mouseVertex) {
 
+	if (!selectVertexFlag)return;
+
 	//== 座標を一時保存し、頂点を移動 ==
 	// 元の座標を保存
 	float originalX = selectVertexPointer->GetX();
@@ -437,6 +467,63 @@ void CAdminControl::moveVertex(CVertex* mouseVertex) {
 		
 }
 
+void CAdminControl::insertVertex(CVertex* mouseVertex) {
+	if (!selectLineFlag) return;
+	CShape* shape = serchShapeByVertex(selectLinePointer);
+	CVertex* nextVertex = selectLinePointer->GetNext();
+
+	selectLinePointer->SetNext(mouseVertex);
+	mouseVertex->SetPre(selectLinePointer);
+	mouseVertex->SetNext(nextVertex);
+	nextVertex->SetPre(mouseVertex);
+
+	shape->SetVertexCount(shape->GetVertexCount() + 1);
+	selectVertexPointer = mouseVertex;
+}
+
+void CAdminControl::deleteVertex() {
+	// 例外処理
+	if (!EditFlag || !selectVertexFlag)return;
+	CShape* shape = serchShapeByVertex(selectVertexPointer);
+	if (shape->GetIsClosedFlag() && shape->GetVertexCount() <= 4) return;
+	if (!shape->GetIsClosedFlag() && shape->GetVertexCount() <= 1) return;
+
+	// 一旦保存
+	CVertex* vertexToDelete = selectVertexPointer;
+	CVertex* preVertex = selectVertexPointer->GetPre();
+	CVertex* backupVertex = new CVertex(vertexToDelete->GetX(), vertexToDelete->GetY());
+
+	// GoodBye
+	shape->freeVertex(selectVertexPointer->GetX(), selectVertexPointer->GetY());
+	
+	bool ERRFlag = false;
+	// 内包判定
+	if (shape->GetIsClosedFlag() && isConnotationFreeVertex(backupVertex, shape)) ERRFlag = true;
+	
+	// 交差判定
+	if (!ERRFlag && preVertex != NULL) {
+		CVertex* nextVertex = preVertex->GetNext();
+		if (nextVertex != NULL) {
+			if (shape->isMoveVertexSelfCross(preVertex, nextVertex, shape_head) ||
+				(nextVertex->GetNext() != NULL && shape->isMoveVertexSelfCross(nextVertex, nextVertex->GetNext(), shape_head))) {
+				ERRFlag = true;
+			}
+		}
+	}
+
+	// 問題があればもとに戻す
+	if (ERRFlag) {
+		// 問題があれば、バックアップから頂点を復元
+		shape->insertVertex(preVertex, backupVertex);
+		selectVertexPointer = backupVertex;
+		return;
+	}
+	else {
+		delete backupVertex;
+		return;
+	}
+}
+
 void CAdminControl::closeShape() {
 	CMath math;
 
@@ -461,4 +548,44 @@ CShape* CAdminControl::serchShapeByVertex(CVertex* vertex) {
 		}
 	}
 	return NULL;
+}
+
+void CAdminControl::freeShape(CShape* shape) {
+	CShape* beforShape = NULL;
+	// 前の図形を調べる
+	for (CShape* currentShape = shape_head; currentShape != NULL; currentShape = currentShape->GetNext()) {
+		if (currentShape == shape) break;
+		beforShape = currentShape;
+	}
+
+	if (shape_head == shape) {
+		if (shape_head->GetNext() != NULL)shape_head = shape_head->GetNext();
+		else {
+			shape_head = NULL;
+			shape_tail = NULL;
+		}
+	}
+	if (shape_tail == shape) {
+		// tailの前が無い=> shape_headと一緒の場合
+		if (shape_head == shape_tail) {
+			shape_head = NULL;
+			shape_tail = NULL;
+		}
+		else shape_tail = beforShape;
+	}
+
+	if (beforShape != NULL)beforShape->SetNext(shape->GetNext());
+	shape->freeShape();
+	delete shape;
+}
+
+void CAdminControl::freeALLShape() {
+	CShape* nowShape = shape_head;
+
+	while (nowShape != NULL) {
+		// 図形をすべて破壊する
+		freeShape(nowShape);
+
+		nowShape = shape_head;
+	}
 }

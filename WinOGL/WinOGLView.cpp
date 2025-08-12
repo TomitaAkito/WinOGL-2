@@ -36,6 +36,8 @@ BEGIN_MESSAGE_MAP(CWinOGLView, CView)
 	ON_COMMAND(ID_EDIT, &CWinOGLView::OnEdit)
 	ON_UPDATE_COMMAND_UI(ID_EDIT, &CWinOGLView::OnUpdateEdit)
 	ON_WM_LBUTTONUP()
+	ON_WM_KEYDOWN()
+	ON_COMMAND(ID_ALLDELETE, &CWinOGLView::OnAlldelete)
 END_MESSAGE_MAP()
 
 // CWinOGLView コンストラクション/デストラクション
@@ -255,4 +257,25 @@ void CWinOGLView::OnUpdateEdit(CCmdUI* pCmdUI) {
 void CWinOGLView::OnLButtonUp(UINT nFlags, CPoint point) {
 	AC.LButtonDownFlag = false;
 	CView::OnLButtonUp(nFlags, point);
+}
+
+void CWinOGLView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	switch (nChar) {
+	case VK_DELETE:
+		if (AC.EditFlag) {
+			AC.deleteVertex();
+		}
+		RedrawWindow();
+		break;
+	case VK_TAB:
+		OnEdit();
+		break;
+	}
+
+	CView::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+void CWinOGLView::OnAlldelete() {
+	AC.freeALLShape();
+	RedrawWindow();
 }

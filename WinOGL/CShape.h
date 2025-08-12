@@ -135,6 +135,7 @@ private:
 	/// <returns>交差していたらtrue、していなければfalse</returns>
 	bool isMoveVertexSelfCross(CVertex* selectVertex, CVertex* nextVertex, CShape* shape_head);
 
+
 #pragma endregion
 
 #pragma region その他のメソッド
@@ -156,6 +157,12 @@ private:
 	/// </summary>
 	void freeVertexTail();
 
+	/// <summary>
+	/// 前の頂点の次に頂点を挿入
+	/// </summary>
+	/// <param name="preVertex">前の頂点</param>
+	/// <param name="newVertex">新しく挿入する頂点</param>
+	void insertVertex(CVertex* preVertex,CVertex* newVertex);
 #pragma endregion
 };
 

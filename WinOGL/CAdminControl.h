@@ -151,6 +151,14 @@ public:
 	/// <param name="vertex">移動している頂点</param>
 	/// <returns>内包する場合はtrue、しない場合はfalse</returns>
 	bool isConnotationMoveVertex(CVertex* vertex);
+
+	/// <summary>
+	/// 削除した際に内包するか判定
+	/// </summary>
+	/// <param name="vertex">消す頂点</param>
+	/// <param name="shape">削除対象の図形</param>
+	/// <returns>内包する場合はtrue、しない場合はfalse</returns>
+	bool isConnotationFreeVertex(CVertex* vertex, CShape* shape);
 #pragma endregion
 
 #pragma region 編集
@@ -193,6 +201,17 @@ public:
 	/// </summary>
 	/// <param name="mouseVertex">マウス座標</param>
 	void moveVertex(CVertex* mouseVertex);
+
+	/// <summary>
+	/// 点の挿入
+	/// </summary>
+	/// <param name="mouseVertex">マウス座標</param>
+	void insertVertex(CVertex* mouseVertex);
+
+	/// <summary>
+	/// 選択された頂点を削除
+	/// </summary>
+	void deleteVertex();
 #pragma endregion
 
 #pragma region その他処理
@@ -208,6 +227,16 @@ public:
 	/// <param name="vertex">頂点</param>
 	/// <returns>図形</returns>
 	CShape* serchShapeByVertex(CVertex* vertex);
+
+	/// <summary>
+	/// 図形の削除
+	/// </summary>
+	void freeShape(CShape* shape);
+
+	/// <summary>
+	/// すべての図形を削除
+	/// </summary>
+	void freeALLShape();
 #pragma endregion
 };
 

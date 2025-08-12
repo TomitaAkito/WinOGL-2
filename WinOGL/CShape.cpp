@@ -184,27 +184,31 @@ void CShape::freeShape() {
 }
 
 void CShape::freeVertex(float x, float y) {
-	CVertex* current = vertex_head;
-	while (current != NULL) {
+	for (CVertex* current = vertex_head; current != NULL; current = current->GetNext()) {
 		if (current->GetX() == x && current->GetY() == y) {
-			// 一致する頂点が見つかった場合
-			if (current->GetPre() != NULL) {
-				current->GetPre()->SetNext(current->GetNext());
+			CVertex* prev = current->GetPre();
+			CVertex* next = current->GetNext();
+
+			if (prev != NULL && next != NULL) {
+				prev->SetNext(next);
+				next->SetPre(prev);
 			}
-			else {
-				vertex_head = current->GetNext(); // 先頭の頂点を更新
+			// 削除対象が先頭(head)の場合
+			else if (prev == NULL) { 
+				vertex_head = next;
+				if (vertex_head != NULL) vertex_head->SetPre(NULL);
+				if (GetIsClosedFlag() && vertex_head != NULL) vertex_tail->SetXY(vertex_head->GetX(), vertex_head->GetY());
 			}
-			if (current->GetNext() != NULL) {
-				current->GetNext()->SetPre(current->GetPre());
+			// 削除対象が末尾(tail)の場合
+			else if (next == NULL) {
+				vertex_tail = prev; 
+				if (vertex_tail != NULL) vertex_tail->SetNext(NULL); 
 			}
-			else {
-				vertex_tail = current->GetPre(); // 末尾の頂点を更新
-			}
-			delete current; // 頂点を削除
-			vertexCount--; // 頂点数を減らす
-			return; // 処理終了
+
+			delete current;
+			vertexCount--;
+			return;
 		}
-		current = current->GetNext(); // 次の頂点へ移動
 	}
 }
 
@@ -215,4 +219,16 @@ void CShape::freeVertexTail() {
 	vertexCount--;
 	delete vertex_tail->GetNext();
 	vertex_tail->SetNext(NULL);
+}
+
+void CShape::insertVertex(CVertex* preVertex, CVertex* newVertex) {
+
+	CVertex* nextVertex = preVertex->GetNext();
+
+	preVertex->SetNext(newVertex);
+	newVertex->SetNext(nextVertex);
+
+	newVertex->SetPre(preVertex);
+	nextVertex->SetPre(newVertex);
+	vertexCount++;
 }
