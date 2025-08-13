@@ -91,6 +91,18 @@ bool CShape::GetIsClosedFlag() {
 	return isClosedFlag;
 }
 
+void CShape::SetVertexToCopy(CVertex* base) {
+	// もしvertex_headがNULLならば、最初の頂点として設定
+	if (vertex_head == NULL) {
+		vertex_head = base;
+		vertex_tail = base; // 最初の頂点はヘッドとテールが同じ
+		vertexCount++; // 頂点の数を増やす
+		return;
+	}
+
+	NormalAddVertex(base);
+}
+
 bool CShape::isDrawPredict(CVertex* MoveMouseVertex) {
 	CMath math;
 	if (math.isXYZ(MoveMouseVertex, this->GetVertexHead())) return true;
@@ -231,4 +243,11 @@ void CShape::insertVertex(CVertex* preVertex, CVertex* newVertex) {
 	newVertex->SetPre(preVertex);
 	nextVertex->SetPre(newVertex);
 	vertexCount++;
+}
+
+void CShape::moveByMovement(float x, float y) {
+	for (CVertex* current = vertex_head; current != NULL; current = current->GetNext()) {
+		current->SetX(current->GetX() + x);
+		current->SetY(current->GetY() + y);
+	}
 }

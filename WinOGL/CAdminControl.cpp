@@ -12,18 +12,19 @@ CAdminControl::CAdminControl(){
 	EditFlag = false;
 	LButtonDownFlag = false;
 	MoveMouseVertex = new CVertex();
+	beforMoveMouseVertex = new CVertex();
 	selectVertexPointer = new CVertex();
 	selectLinePointer = new CVertex();
 	selectShapePointer = new CShape();
 	selectVertexFlag = false;
 	selectLineFlag = false;
 	selectShapeFlag = false;
+	selectNum = 0;
 }
 
 CAdminControl::~CAdminControl(){
-	delete MoveMouseVertex, selectVertexPointer, selectLinePointer;
-	delete selectShapePointer;
 	freeALLShape();
+	delete MoveMouseVertex, beforMoveMouseVertex;
 }
 
 void CAdminControl::Draw()
@@ -226,6 +227,7 @@ void CAdminControl::SetVertex(float mouse_x, float mouse_y) {
 }
 
 void CAdminControl::SetMouseVertex(float mouse_x, float mouse_y) {
+	beforMoveMouseVertex->SetVertex(MoveMouseVertex->GetX(), MoveMouseVertex->GetY());
 	MoveMouseVertex->SetVertex(mouse_x, mouse_y);
 }
 
@@ -334,14 +336,6 @@ void CAdminControl::Edit(float mouse_x, float mouse_y) {
 	bool LineFlag = selectLine(LMouseVertex);	
 	bool ShapeFlag = selectShape(LMouseVertex);
 
-	// 点を挿入するか
-	if (selectLineFlag && ShapeFlag && tmpSelectLine == selectLinePointer) {
-		insertVertex(LMouseVertex);
-		selectLineFlag = false;
-		selectVertexFlag = true;
-		return;
-	}
-
 	selectVertexFlag = false;
 	selectLineFlag = false;
 	selectShapeFlag = false;
@@ -351,6 +345,16 @@ void CAdminControl::Edit(float mouse_x, float mouse_y) {
 	if (VertexFlag) selectVertexFlag = true;
 	else if (LineFlag) selectLineFlag = true;
 	else if (ShapeFlag) selectShapeFlag = true;	
+
+	// 点を挿入するか
+	if (selectLineFlag && tmpSelectLine == selectLinePointer) {
+		insertVertex(LMouseVertex);
+		selectLineFlag = false;
+		selectVertexFlag = true;
+		selectVertexPointer = LMouseVertex;
+		return;
+	}
+
 	delete LMouseVertex;
 }
 
@@ -415,6 +419,7 @@ bool CAdminControl::selectShape(CVertex* LMouseVertex) {
 
 void CAdminControl::moveByMouse() {
 	if (selectVertexFlag)moveVertex(MoveMouseVertex);
+	else if (selectShapeFlag)moveShape(MoveMouseVertex);
 }
 
 void CAdminControl::moveVertex(CVertex* mouseVertex) {
@@ -467,6 +472,40 @@ void CAdminControl::moveVertex(CVertex* mouseVertex) {
 		
 }
 
+void CAdminControl::moveShape(CVertex* mouseVertex) {
+
+	if (!selectShapeFlag)return;
+
+	// 元の図形を保存
+	CShape* backupShape = copyShape(selectShapePointer);
+
+	// 移動量算出
+	CMath math;
+	float movement[2];
+	math.calcMovementByVertex(beforMoveMouseVertex, mouseVertex, movement);
+
+	// 移動量に基づき移動
+	selectShapePointer->moveByMovement(movement[0],movement[1]);
+	
+	// 図形が1つしかない場合はスキップ
+	if (shape_head->GetNext() == NULL) return;
+
+	// 問題があるかチェック
+	bool ERRFlag = false;
+	for (CVertex* current = selectShapePointer->GetVertexHead(); current != selectShapePointer->GetVertexTail(); current = current->GetNext()) {
+		// 交差判定 || 内包判定
+		if ((current->GetPre() != NULL && selectShapePointer->isMoveVertexSelfCross(current->GetPre(), current, shape_head))
+			||(isConnotationMoveVertex(current))){
+			ERRFlag = true;
+			break;
+		}
+	}
+
+	// 問題がある場合は元の座標に戻す
+	if (ERRFlag)
+		selectShapePointer->moveByMovement((-1) * movement[0], (-1) * movement[1]);
+}
+
 void CAdminControl::insertVertex(CVertex* mouseVertex) {
 	if (!selectLineFlag) return;
 	CShape* shape = serchShapeByVertex(selectLinePointer);
@@ -481,47 +520,116 @@ void CAdminControl::insertVertex(CVertex* mouseVertex) {
 	selectVertexPointer = mouseVertex;
 }
 
+//void CAdminControl::deleteVertex() {
+	//// 例外処理
+	//if (!EditFlag || !selectVertexFlag)return;
+	//CShape* shape = serchShapeByVertex(selectVertexPointer);
+	//if (shape->GetIsClosedFlag() && shape->GetVertexCount() <= 4) return;
+	//if (!shape->GetIsClosedFlag() && shape->GetVertexCount() <= 1) return;
+
+	//// 一旦保存
+	//CVertex* vertexToDelete = selectVertexPointer;
+	//CVertex* preVertex = selectVertexPointer->GetPre();
+	//CVertex* backupVertex = new CVertex(vertexToDelete->GetX(), vertexToDelete->GetY());
+
+	//// GoodBye
+	//shape->freeVertex(selectVertexPointer->GetX(), selectVertexPointer->GetY());
+	//
+	//bool ERRFlag = false;
+	//// 内包判定
+	//if (shape->GetIsClosedFlag() && isConnotationFreeVertex(backupVertex, shape)) ERRFlag = true;
+	//
+	//// 交差判定
+	//if (!ERRFlag && preVertex != NULL) {
+	//	CVertex* nextVertex = preVertex->GetNext();
+	//	if (nextVertex != NULL) {
+	//		if (shape->isMoveVertexSelfCross(preVertex, nextVertex, shape_head) ||
+	//			(nextVertex->GetNext() != NULL && shape->isMoveVertexSelfCross(nextVertex, nextVertex->GetNext(), shape_head))) {
+	//			ERRFlag = true;
+	//		}
+	//	}
+	//}
+
+	//// 問題があればもとに戻す
+	//if (ERRFlag) {
+	//	// 問題があれば、バックアップから頂点を復元
+	//	shape->insertVertex(preVertex, backupVertex);
+	//	selectVertexPointer = backupVertex;
+	//	return;
+	//}
+	//else {
+	//	delete backupVertex;
+	//	return;
+	//}
+
 void CAdminControl::deleteVertex() {
+	/* 学部時代のソースコードを改変しました。難しいです。無理です。 */
+
 	// 例外処理
-	if (!EditFlag || !selectVertexFlag)return;
+	if (!selectVertexFlag) return;
+	
+	// 頂点が含まれる図形の探索
 	CShape* shape = serchShapeByVertex(selectVertexPointer);
-	if (shape->GetIsClosedFlag() && shape->GetVertexCount() <= 4) return;
-	if (!shape->GetIsClosedFlag() && shape->GetVertexCount() <= 1) return;
 
-	// 一旦保存
-	CVertex* vertexToDelete = selectVertexPointer;
-	CVertex* preVertex = selectVertexPointer->GetPre();
-	CVertex* backupVertex = new CVertex(vertexToDelete->GetX(), vertexToDelete->GetY());
+	// 保険(もし内包した場合のVertex)
+	CVertex* BFVertex = selectVertexPointer->GetPre();
+	CVertex* vertex = new CVertex(selectVertexPointer->GetX(), selectVertexPointer->GetY());
+	vertex->SetNext(selectVertexPointer->GetNext());
 
-	// GoodBye
-	shape->freeVertex(selectVertexPointer->GetX(), selectVertexPointer->GetY());
-	
-	bool ERRFlag = false;
-	// 内包判定
-	if (shape->GetIsClosedFlag() && isConnotationFreeVertex(backupVertex, shape)) ERRFlag = true;
-	
-	// 交差判定
-	if (!ERRFlag && preVertex != NULL) {
-		CVertex* nextVertex = preVertex->GetNext();
-		if (nextVertex != NULL) {
-			if (shape->isMoveVertexSelfCross(preVertex, nextVertex, shape_head) ||
-				(nextVertex->GetNext() != NULL && shape->isMoveVertexSelfCross(nextVertex, nextVertex->GetNext(), shape_head))) {
-				ERRFlag = true;
-			}
+
+	// 図形が三角形なら
+	if (shape->GetVertexCount() <= 4 && shape->GetIsClosedFlag()) return;
+
+	// 頂点を削除
+	else {
+		// 判定用vertexの設定
+		if (BFVertex == NULL && shape->GetIsClosedFlag()) BFVertex = shape->GetVertexTail()->GetPre();
+
+		// 一旦削除
+		shape->freeVertex(selectVertexPointer->GetX(), selectVertexPointer->GetY());
+
+		// 判定用vertexの設定
+		CVertex* nowVertex = NULL;
+		if (BFVertex != NULL) {
+			nowVertex = BFVertex->GetNext();
+			if (nowVertex == shape->GetVertexTail() && shape->GetIsClosedFlag()) nowVertex = shape->GetVertexHead();
+		}
+
+		CVertex* AFVertex = NULL;
+		if (nowVertex != NULL) {
+			AFVertex = nowVertex->GetNext();
+			if (AFVertex == shape->GetVertexTail() && shape->GetIsClosedFlag()) AFVertex = shape->GetVertexHead();
+		}
+
+		bool ErrFlag = false;
+
+		// 内包判定
+		if (shape->GetIsClosedFlag() && isConnotationFreeVertex(vertex, shape)) {
+			ErrFlag = true;
+		}
+
+		// 交差判定
+		bool flag = true;
+		if (BFVertex == NULL || nowVertex == NULL) flag = false;
+		if (flag && shape->isMoveVertexSelfCross(BFVertex, nowVertex, shape_head)) {
+			ErrFlag = true;
+		}
+		flag = true;
+		if (AFVertex == NULL || nowVertex == NULL) flag = false;
+		if (flag && shape->isMoveVertexSelfCross(nowVertex, AFVertex, shape_head)) {
+			ErrFlag = true;
+		}
+
+		if (ErrFlag) {
+			// もとに戻す(vertexを挿入する)
+			shape->insertVertex(BFVertex, vertex);
+			selectVertexPointer = vertex;
+			return;
 		}
 	}
-
-	// 問題があればもとに戻す
-	if (ERRFlag) {
-		// 問題があれば、バックアップから頂点を復元
-		shape->insertVertex(preVertex, backupVertex);
-		selectVertexPointer = backupVertex;
-		return;
-	}
-	else {
-		delete backupVertex;
-		return;
-	}
+	// もし形状が保てない(vertexの数が0)場合は形状を消す
+	if (shape->GetVertexCount() == 0) freeShape(shape);
+	return;
 }
 
 void CAdminControl::closeShape() {
@@ -583,9 +691,22 @@ void CAdminControl::freeALLShape() {
 	CShape* nowShape = shape_head;
 
 	while (nowShape != NULL) {
+		if (nowShape->GetVertexHead() == NULL)break;
 		// 図形をすべて破壊する
 		freeShape(nowShape);
 
 		nowShape = shape_head;
 	}
+}
+
+CShape* CAdminControl::copyShape(CShape* baseShape) {
+
+	CShape* newShape = new CShape();
+
+	for (CVertex* current = baseShape->GetVertexHead(); current != NULL; current = current->GetNext()) {
+		newShape->SetVertexToCopy(current);
+	}
+	if(baseShape->GetIsClosedFlag())newShape->SetIsClosed(true);
+	
+	return newShape;
 }

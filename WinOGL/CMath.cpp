@@ -75,3 +75,8 @@ float CMath::calcSinTheta(CVector* a, CVector* b) {
 float CMath::calcVectorDistance(CVector* a) {
     return sqrt(pow(a->GetX(),2)+pow(a->GetY(),2));
 }
+
+void CMath::calcMovementByVertex(CVertex* beforVertex, CVertex* afterVertex, float(&result)[2]) {
+    result[0] = afterVertex->GetX() - beforVertex->GetX();
+    result[1] = afterVertex->GetY() - beforVertex->GetY();
+}

@@ -15,12 +15,14 @@ private:
 	float POINTSIZE; // 頂点のサイズ
 	float LINEWIDTH; // 線のサイズ
 	CVertex* MoveMouseVertex; // マウス座標
+	CVertex* beforMoveMouseVertex; // 1フレーム前のマウス座標
 	CVertex* selectVertexPointer; // 選択された頂点
 	CVertex* selectLinePointer; // 選択された稜線の始点
 	CShape* selectShapePointer; // 選択された図形
 	bool selectVertexFlag; // 頂点を選択しているか
 	bool selectLineFlag; // 稜線を選択しているか
 	bool selectShapeFlag; // 図形を選択しているか
+	int selectNum; // 何回選択しているか
 #pragma endregion
 
 public:
@@ -203,6 +205,12 @@ public:
 	void moveVertex(CVertex* mouseVertex);
 
 	/// <summary>
+	/// 図形を移動
+	/// </summary>
+	/// <param name="mouseVertex">マウス座標</param>
+	void moveShape(CVertex* mouseVertex);
+
+	/// <summary>
 	/// 点の挿入
 	/// </summary>
 	/// <param name="mouseVertex">マウス座標</param>
@@ -237,6 +245,13 @@ public:
 	/// すべての図形を削除
 	/// </summary>
 	void freeALLShape();
+
+	/// <summary>
+	/// 引数の図形をコピーした図形を返す
+	/// </summary>
+	/// <param name="baseShape">コピー元の図形</param>
+	/// <returns>座標などをコピーした図形</returns>
+	CShape* copyShape(CShape* baseShape);
 #pragma endregion
 };
 

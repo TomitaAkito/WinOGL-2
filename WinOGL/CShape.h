@@ -92,6 +92,11 @@ private:
 	/// <returns>オブジェクトが閉じている場合は true、開いている場合は false</returns>
 	bool GetIsClosedFlag();
 
+	/// <summary>
+	/// コピー用にVertexをセットする
+	/// </summary>
+	/// <param name="base">コピー元の頂点</param>
+	void SetVertexToCopy(CVertex* base);
 #pragma endregion
 
 #pragma region 判定系
@@ -163,6 +168,13 @@ private:
 	/// <param name="preVertex">前の頂点</param>
 	/// <param name="newVertex">新しく挿入する頂点</param>
 	void insertVertex(CVertex* preVertex,CVertex* newVertex);
+
+	/// <summary>
+	/// 引数に応じて図形を移動させる
+	/// </summary>
+	/// <param name="x">x軸方向の移動量</param>
+	/// <param name="y">y軸方向の移動量</param>
+	void moveByMovement(float x, float y);
 #pragma endregion
 };
 

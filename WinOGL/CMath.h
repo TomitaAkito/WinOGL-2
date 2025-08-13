@@ -84,5 +84,13 @@ public:
 	/// <param name="a">ベクトル a</param>
 	/// <returns>ベクトルの大きさ</returns>
 	float calcVectorDistance(CVector* a);
+
+	/// <summary>
+	/// 引数の頂点から移動量を算出して配列に格納
+	/// </summary>
+	/// <param name="beforVertex">元の頂点</param>
+	/// <param name="afterVertex">移動先の頂点</param>
+	/// <param name="result">結果を格納(シリアライズ・デシリアライズは呼び出し元で行う)</param>
+	void calcMovementByVertex(CVertex* beforVertex, CVertex* afterVertex, float(&result)[2]);
 };
 
