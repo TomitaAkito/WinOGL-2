@@ -230,6 +230,11 @@ public:
 	/// 図形の拡大・縮小
 	/// </summary>
 	void resizeShape();
+
+	/// <summary>
+	/// 図形の回転
+	/// </summary>
+	void rotateShape();
 #pragma endregion
 
 #pragma region その他処理
@@ -269,6 +274,11 @@ public:
 	/// <param name="baseShape">コピー元の図形</param>
 	/// <param name="copyShape">コピー先の図形</param>
 	void copyShapeByShape(CShape* baseShape, CShape* copyShape);
+
+	/// <summary>
+	/// Editモード解除時の挙動を決定
+	/// </summary>
+	void resetEdit();
 #pragma endregion
 };
 

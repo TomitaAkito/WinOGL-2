@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "CMath.h"
+#include "CDebug.h"
 
 
 float CMath::calcDistance(CVertex* vertex1, CVertex* vertex2) {
@@ -122,4 +123,19 @@ float CMath::calcShapeArea(CShape* shape) {
 
     area = (float)(absFloat(area) / 2.0);
     return area;
+}
+
+void CMath::calcRotateRate(CVector* a, CVector* b, float(&result)[2]) {
+    // sin
+    float a_dis = calcVectorDistance(a);
+    float b_dis = calcVectorDistance(b);
+    result[0] = calcCrossProduct(a, b) / (a_dis * b_dis);
+    
+    // cos
+    result[1] = (float)sqrt( 1 - powf(result[0],2));
+
+    // cosのみ象限でマイナスを設定
+    float tan_angle = calcAngle(a, b);
+    if (3.14 * 0.5 <= tan_angle && tan_angle <= 3.14 * 1.5) result[1] *= -1;
+
 }

@@ -99,6 +99,11 @@ private:
 	/// </summary>
 	/// <param name="base">コピー元の頂点</param>
 	void SetVertexToCopy(CVertex* base);
+
+	/// <summary>
+	/// 重心を更新する
+	/// </summary>
+	void SetCOGVertex();
 #pragma endregion
 
 #pragma region 判定系
@@ -185,6 +190,14 @@ private:
 	/// <param name="yRate">y軸方向の拡大縮小率</param>
 	/// <param name="baseShape">元の図形をコピーしたもの</param>
 	void resizeShape(float xRate,float yRate, CShape* baseShape);
+
+	/// <summary>
+	/// 引数に応じて図形を回転
+	/// </summary>
+	/// <param name="sin">sin</param>
+	/// <param name="cos">cos</param>
+	/// <param name="baseShape">元の図形をコピーしたもの</param>
+	void rotateShape(float sin, float cos, CShape* baseShape);
 #pragma endregion
 };
 

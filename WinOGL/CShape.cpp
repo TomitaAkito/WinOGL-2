@@ -106,6 +106,13 @@ void CShape::SetVertexToCopy(CVertex* base) {
 	NormalAddVertex(newVertex);
 }
 
+void CShape::SetCOGVertex() {
+	CMath math;
+	CVertex* newCOG = math.calcCOGByShape(this);
+	this->COGVertex->SetVertex(newCOG->GetX(), newCOG->GetY());
+	delete newCOG;
+}
+
 bool CShape::isDrawPredict(CVertex* MoveMouseVertex) {
 	CMath math;
 	if (math.isXYZ(MoveMouseVertex, this->GetVertexHead())) return true;
@@ -256,17 +263,23 @@ void CShape::moveByMovement(float x, float y) {
 }
 
 void CShape::resizeShape(float xRate, float yRate,CShape* baseShape) {
-	CMath math;
 	CVertex* BasePoint = this->COGVertex;
 	CVertex* resizeVertex = this->GetVertexHead();
 
-	CDebug debug;
-	debug.printf_ex(_T("COG->[%f,%f] rate->[%f,%f]\n"), COGVertex->GetX(), COGVertex->GetY(),xRate,yRate);
-
 	for (CVertex* current = baseShape->GetVertexHead(); current != NULL; current = current->GetNext()) {
-		debug.printf_ex(_T("[% f, % f]\n"), current->GetX(), current->GetY());
 		resizeVertex->SetX(xRate * (current->GetX() - BasePoint->GetX()) + BasePoint->GetX());
 		resizeVertex->SetY(yRate * (current->GetY() - BasePoint->GetY()) + BasePoint->GetY());
 		resizeVertex = resizeVertex ->GetNext();
+	}
+}
+
+void CShape::rotateShape(float sin, float cos, CShape* baseShape) {
+	CVertex* BasePoint = this->COGVertex;
+	CVertex* resizeVertex = this->GetVertexHead();
+
+	for (CVertex* current = baseShape->GetVertexHead(); current != NULL; current = current->GetNext()) {
+		resizeVertex->SetX((current->GetX() - BasePoint->GetX()) * cos - (current->GetY() - BasePoint->GetY()) * sin + BasePoint->GetX());
+		resizeVertex->SetY((current->GetX() - BasePoint->GetX()) * sin + (current->GetY() - BasePoint->GetY()) * cos + BasePoint->GetY());
+		resizeVertex = resizeVertex->GetNext();
 	}
 }

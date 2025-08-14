@@ -511,6 +511,9 @@ void CAdminControl::moveShape(CVertex* mouseVertex) {
 	// 問題がある場合は元の座標に戻す
 	if (ERRFlag)
 		selectShapePointer->moveByMovement((-1) * movement[0], (-1) * movement[1]);
+
+	resizeShapeCopy = copyShape(selectShapePointer);
+	
 }
 
 void CAdminControl::insertVertex(CVertex* mouseVertex) {
@@ -675,6 +678,43 @@ void CAdminControl::resizeShape() {
 	delete cpShape;
 }
 
+void CAdminControl::rotateShape() {
+	if (!selectShapeFlag)return;
+
+	// 移動量算出
+	CMath math;
+	float rotateRate[2];
+	CVector* aVector = new CVector(selectShapePointer->COGVertex, LButtonDownVeretex);
+	CVector* bVector = new CVector(selectShapePointer->COGVertex, MoveMouseVertex);
+	math.calcRotateRate(aVector,bVector, rotateRate);
+	delete aVector, bVector;
+
+	CShape* cpShape = copyShape(selectShapePointer);
+
+	// 移動量に基づき移動
+	selectShapePointer->rotateShape(rotateRate[0], rotateRate[1], resizeShapeCopy);
+
+	// 図形が1つしかない場合はスキップ
+	if (shape_head->GetNext() == NULL) return;
+
+	// 問題があるかチェック
+	bool ERRFlag = false;
+	for (CVertex* current = selectShapePointer->GetVertexHead(); current != selectShapePointer->GetVertexTail(); current = current->GetNext()) {
+		// 交差判定 || 内包判定
+		if ((current->GetPre() != NULL && selectShapePointer->isMoveVertexSelfCross(current->GetPre(), current, shape_head))
+			|| (isConnotationMoveVertex(current))) {
+			ERRFlag = true;
+			break;
+		}
+	}
+
+	// 問題がある場合は元の座標に戻す
+	if (ERRFlag)
+		copyShapeByShape(cpShape, selectShapePointer);
+
+	delete cpShape;
+}
+
 void CAdminControl::closeShape() {
 	CMath math;
 
@@ -765,4 +805,13 @@ void CAdminControl::copyShapeByShape(CShape* baseShape, CShape* copyShape) {
 		cpCurrent->SetXY(current->GetX(), current->GetY());
 		cpCurrent = cpCurrent->GetNext();
 	}
+}
+
+void CAdminControl::resetEdit() {
+	selectShapeFlag = false;
+	selectVertexFlag = false;
+	selectShapeFlag = false;
+	selectVertexPointer = NULL;
+	selectLinePointer = NULL;
+	selectShapePointer = NULL;
 }

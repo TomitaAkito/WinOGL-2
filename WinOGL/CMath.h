@@ -114,5 +114,13 @@ public:
 	/// <param name="shape">図形</param>
 	/// <returns>面積</returns>
 	float calcShapeArea(CShape* shape);
+
+	/// <summary>
+	/// ベクトルからsinとcosを算出して配列に格納
+	/// </summary>
+	/// <param name="a">ベクトル a</param>
+	/// <param name="b">ベクトル b</param>
+	/// <param name="result">[0]sin [1]cosの値を格納</param>
+	void calcRotateRate(CVector* a,CVector* b, float(&result)[2]);
 };
 

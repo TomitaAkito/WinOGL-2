@@ -242,6 +242,7 @@ void CWinOGLView::OnMouseMove(UINT nFlags, CPoint point) {
 	AC.SetMouseVertex(x_Ldown, y_Ldown);
 
 	if (AC.LButtonDownFlag && AC.EditFlag && AC.selectShapeFlag && AC.ShiftFlag)AC.resizeShape();
+	else if (AC.LButtonDownFlag && AC.EditFlag && AC.selectShapeFlag && AC.keyRFlag)AC.rotateShape();
 	else if (AC.LButtonDownFlag && AC.EditFlag)AC.moveByMouse();
 
 	RedrawWindow();
@@ -251,6 +252,7 @@ void CWinOGLView::OnMouseMove(UINT nFlags, CPoint point) {
 void CWinOGLView::OnEdit() {
 	// TODO: ここにコマンド ハンドラー コードを追加します。
 	AC.EditFlag = !AC.EditFlag;
+	AC.resetEdit();
 	RedrawWindow();
 }
 
