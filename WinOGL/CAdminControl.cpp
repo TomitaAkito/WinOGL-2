@@ -19,12 +19,16 @@ CAdminControl::CAdminControl(){
 	selectVertexFlag = false;
 	selectLineFlag = false;
 	selectShapeFlag = false;
+	ShiftFlag = false;
+	keyRFlag = false;
 	selectNum = 0;
+	LButtonDownVeretex = new CVertex();
+	resizeShapeCopy = new CShape();
 }
 
 CAdminControl::~CAdminControl(){
 	freeALLShape();
-	delete MoveMouseVertex, beforMoveMouseVertex;
+	delete MoveMouseVertex, beforMoveMouseVertex, resizeShapeCopy;
 }
 
 void CAdminControl::Draw()
@@ -325,6 +329,9 @@ bool CAdminControl::isConnotationFreeVertex(CVertex* vertex, CShape* shape) {
 	return false;
 }
 void CAdminControl::Edit(float mouse_x, float mouse_y) {
+	
+	if (ShiftFlag || keyRFlag)return;
+	
 	// マウスを座標として指定する
 	CVertex* LMouseVertex = new CVertex(mouse_x,mouse_y);
 
@@ -344,7 +351,10 @@ void CAdminControl::Edit(float mouse_x, float mouse_y) {
 	// 優先順位を設ける
 	if (VertexFlag) selectVertexFlag = true;
 	else if (LineFlag) selectLineFlag = true;
-	else if (ShapeFlag) selectShapeFlag = true;	
+	else if (ShapeFlag) {
+		selectShapeFlag = true;
+		resizeShapeCopy = copyShape(selectShapePointer);
+	}
 
 	// 点を挿入するか
 	if (selectLineFlag && tmpSelectLine == selectLinePointer) {
@@ -475,9 +485,6 @@ void CAdminControl::moveVertex(CVertex* mouseVertex) {
 void CAdminControl::moveShape(CVertex* mouseVertex) {
 
 	if (!selectShapeFlag)return;
-
-	// 元の図形を保存
-	CShape* backupShape = copyShape(selectShapePointer);
 
 	// 移動量算出
 	CMath math;
@@ -632,6 +639,42 @@ void CAdminControl::deleteVertex() {
 	return;
 }
 
+void CAdminControl::resizeShape() {
+	if (!selectShapeFlag)return;
+
+	// 移動量算出
+	CMath math;
+	float resizeRate[2];
+	math.calcResizeRate(LButtonDownVeretex, MoveMouseVertex, resizeRate);
+	CShape* cpShape = copyShape(selectShapePointer);
+
+	// 移動量に基づき移動
+	selectShapePointer->resizeShape(resizeRate[0], resizeRate[0], resizeShapeCopy);
+
+	// 図形が1つしかない場合はスキップ
+	if (shape_head->GetNext() == NULL) return;
+
+	// 問題があるかチェック
+	bool ERRFlag = false;
+	for (CVertex* current = selectShapePointer->GetVertexHead(); current != selectShapePointer->GetVertexTail(); current = current->GetNext()) {
+		// 交差判定 || 内包判定
+		if ((current->GetPre() != NULL && selectShapePointer->isMoveVertexSelfCross(current->GetPre(), current, shape_head))
+			|| (isConnotationMoveVertex(current))) {
+			ERRFlag = true;
+			break;
+		}
+	}
+
+	if (0.01 >= math.calcShapeArea(selectShapePointer))
+		ERRFlag = true;
+		
+	// 問題がある場合は元の座標に戻す
+	if (ERRFlag)
+		copyShapeByShape(cpShape, selectShapePointer);
+
+	delete cpShape;
+}
+
 void CAdminControl::closeShape() {
 	CMath math;
 
@@ -640,6 +683,9 @@ void CAdminControl::closeShape() {
 		// 閉じる図形の処理
 		shape_tail->GetVertexTail()->SetVertex(shape_tail->GetVertexHead()->GetX(), shape_tail->GetVertexHead()->GetY());
 		shape_tail->SetIsClosed(true); // 閉じた図形にする
+		CVertex* COG = math.calcCOGByShape(shape_tail);
+		shape_tail->COGVertex->SetXY(COG->GetX(), COG->GetY());
+		delete COG;
 		
 		// 図形リストに新しい図形を加える
 		CShape* newShape = new CShape();
@@ -709,4 +755,14 @@ CShape* CAdminControl::copyShape(CShape* baseShape) {
 	if(baseShape->GetIsClosedFlag())newShape->SetIsClosed(true);
 	
 	return newShape;
+}
+
+void CAdminControl::copyShapeByShape(CShape* baseShape, CShape* copyShape) {
+	if (baseShape->GetVertexCount() != copyShape->GetVertexCount())return;
+
+	CVertex* cpCurrent = copyShape->GetVertexHead();
+	for (CVertex* current = baseShape->GetVertexHead(); current != NULL; current = current->GetNext()) {
+		cpCurrent->SetXY(current->GetX(), current->GetY());
+		cpCurrent = cpCurrent->GetNext();
+	}
 }

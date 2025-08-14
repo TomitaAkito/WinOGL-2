@@ -80,3 +80,46 @@ void CMath::calcMovementByVertex(CVertex* beforVertex, CVertex* afterVertex, flo
     result[0] = afterVertex->GetX() - beforVertex->GetX();
     result[1] = afterVertex->GetY() - beforVertex->GetY();
 }
+
+CVertex* CMath::calcCOGByShape(CShape* shape) {
+    float x = 0;
+    float y = 0;
+
+    for (CVertex* current = shape->GetVertexHead(); current != NULL; current = current->GetNext()) {
+        if (current == shape->GetVertexTail() && shape->GetIsClosedFlag()) break;
+
+        x += current->GetX();
+        y += current->GetY();
+    }
+
+    x /= shape->GetVertexCount() - 1;
+    y /= shape->GetVertexCount() - 1;
+
+    CVertex* result = new CVertex(x, y);
+    return result;
+}
+
+void CMath::calcResizeRate(CVertex* beforVertex, CVertex* afterVertex, float(&result)[2]) {
+    result[0] = absFloat(afterVertex->GetX() / beforVertex->GetX());
+    result[1] = absFloat(afterVertex->GetY() / beforVertex->GetY());
+}
+
+float CMath::calcShapeArea(CShape* shape) {
+    // 学部時代のソースコードを拝借
+    float area = 0.0;
+    int num = shape->GetVertexCount() - 1;
+    CVertex* BFVertex = shape->GetVertexHead();
+    CVertex* nowVertex = BFVertex->GetNext();
+
+    for (int i = 0; i < num; ++i) {
+        area += nowVertex->GetX() * BFVertex->GetY() - nowVertex->GetY() * nowVertex->GetX();
+
+        // 頂点の更新
+        BFVertex = BFVertex->GetNext();
+        if (nowVertex == shape->GetVertexTail()) nowVertex = shape->GetVertexHead();
+        nowVertex = nowVertex->GetNext();
+    }
+
+    area = (float)(absFloat(area) / 2.0);
+    return area;
+}

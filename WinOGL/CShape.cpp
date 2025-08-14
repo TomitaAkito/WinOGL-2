@@ -2,6 +2,7 @@
 #include "CShape.h"
 #include "CVector.h"
 #include "CMath.h"
+#include "CDebug.h"
 
 CShape::CShape() {
 	// 初期化
@@ -10,6 +11,7 @@ CShape::CShape() {
 	next = NULL; // 次の形状へのポインタも初期化
 	isClosedFlag = false; // 初期状態では閉じていない
 	vertexCount = 0; // 頂点の数も初期化
+	COGVertex = new CVertex();
 }
 
 CShape::~CShape() {
@@ -92,15 +94,16 @@ bool CShape::GetIsClosedFlag() {
 }
 
 void CShape::SetVertexToCopy(CVertex* base) {
+	CVertex* newVertex = new CVertex(base->GetX(), base->GetY());
 	// もしvertex_headがNULLならば、最初の頂点として設定
 	if (vertex_head == NULL) {
-		vertex_head = base;
-		vertex_tail = base; // 最初の頂点はヘッドとテールが同じ
+		vertex_head = newVertex;
+		vertex_tail = newVertex; // 最初の頂点はヘッドとテールが同じ
 		vertexCount++; // 頂点の数を増やす
 		return;
 	}
 
-	NormalAddVertex(base);
+	NormalAddVertex(newVertex);
 }
 
 bool CShape::isDrawPredict(CVertex* MoveMouseVertex) {
@@ -249,5 +252,21 @@ void CShape::moveByMovement(float x, float y) {
 	for (CVertex* current = vertex_head; current != NULL; current = current->GetNext()) {
 		current->SetX(current->GetX() + x);
 		current->SetY(current->GetY() + y);
+	}
+}
+
+void CShape::resizeShape(float xRate, float yRate,CShape* baseShape) {
+	CMath math;
+	CVertex* BasePoint = this->COGVertex;
+	CVertex* resizeVertex = this->GetVertexHead();
+
+	CDebug debug;
+	debug.printf_ex(_T("COG->[%f,%f] rate->[%f,%f]\n"), COGVertex->GetX(), COGVertex->GetY(),xRate,yRate);
+
+	for (CVertex* current = baseShape->GetVertexHead(); current != NULL; current = current->GetNext()) {
+		debug.printf_ex(_T("[% f, % f]\n"), current->GetX(), current->GetY());
+		resizeVertex->SetX(xRate * (current->GetX() - BasePoint->GetX()) + BasePoint->GetX());
+		resizeVertex->SetY(yRate * (current->GetY() - BasePoint->GetY()) + BasePoint->GetY());
+		resizeVertex = resizeVertex ->GetNext();
 	}
 }

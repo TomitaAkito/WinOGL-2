@@ -8,6 +8,12 @@ public:
 	bool AxisFlag; // 座標軸を描画するか
 	bool EditFlag; // 編集モードにするか
 	bool LButtonDownFlag; // 左クリックが押下されているか
+	bool ShiftFlag;
+	bool keyRFlag;
+	bool selectVertexFlag; // 頂点を選択しているか
+	bool selectLineFlag; // 稜線を選択しているか
+	bool selectShapeFlag; // 図形を選択しているか
+	CVertex* LButtonDownVeretex;
 private:
 	CShape* shape_head;  // 形状を管理するオブジェクト
 	CShape* shape_tail;  // 形状の末尾ポインタ
@@ -19,10 +25,9 @@ private:
 	CVertex* selectVertexPointer; // 選択された頂点
 	CVertex* selectLinePointer; // 選択された稜線の始点
 	CShape* selectShapePointer; // 選択された図形
-	bool selectVertexFlag; // 頂点を選択しているか
-	bool selectLineFlag; // 稜線を選択しているか
-	bool selectShapeFlag; // 図形を選択しているか
 	int selectNum; // 何回選択しているか
+	CShape* resizeShapeCopy;
+	
 #pragma endregion
 
 public:
@@ -220,6 +225,11 @@ public:
 	/// 選択された頂点を削除
 	/// </summary>
 	void deleteVertex();
+
+	/// <summary>
+	/// 図形の拡大・縮小
+	/// </summary>
+	void resizeShape();
 #pragma endregion
 
 #pragma region その他処理
@@ -252,6 +262,13 @@ public:
 	/// <param name="baseShape">コピー元の図形</param>
 	/// <returns>座標などをコピーした図形</returns>
 	CShape* copyShape(CShape* baseShape);
+
+	/// <summary>
+	/// 同じ頂点数を持っている図形の座標をコピー
+	/// </summary>
+	/// <param name="baseShape">コピー元の図形</param>
+	/// <param name="copyShape">コピー先の図形</param>
+	void copyShapeByShape(CShape* baseShape, CShape* copyShape);
 #pragma endregion
 };
 

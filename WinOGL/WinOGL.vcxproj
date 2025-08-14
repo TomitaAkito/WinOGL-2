@@ -187,6 +187,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CAdminControl.h" />
+    <ClInclude Include="CDebug.h" />
     <ClInclude Include="CMath.h" />
     <ClInclude Include="CShape.h" />
     <ClInclude Include="CVector.h" />
@@ -202,6 +203,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CAdminControl.cpp" />
+    <ClCompile Include="CDebug.cpp" />
     <ClCompile Include="CMath.cpp" />
     <ClCompile Include="CShape.cpp" />
     <ClCompile Include="CVector.cpp" />

@@ -92,5 +92,27 @@ public:
 	/// <param name="afterVertex">移動先の頂点</param>
 	/// <param name="result">結果を格納(シリアライズ・デシリアライズは呼び出し元で行う)</param>
 	void calcMovementByVertex(CVertex* beforVertex, CVertex* afterVertex, float(&result)[2]);
+
+	/// <summary>
+	/// 図形の重心を計算
+	/// </summary>
+	/// <param name="shape">図形</param>
+	/// <returns>重心の座標</returns>
+	CVertex* calcCOGByShape(CShape* shape);
+
+	/// <summary>
+	/// 引数の頂点から縮小率を算出して配列に格納
+	/// </summary>
+	/// <param name="beforVertex">元の頂点</param>
+	/// <param name="afterVertex">移動先の頂点</param>
+	/// <param name="result">結果を格納(シリアライズ・デシリアライズは呼び出し元で行う)</param>
+	void calcResizeRate(CVertex* beforVertex, CVertex* afterVertex, float(&result)[2]);
+
+	/// <summary>
+	/// 図形の面積を計算
+	/// </summary>
+	/// <param name="shape">図形</param>
+	/// <returns>面積</returns>
+	float calcShapeArea(CShape* shape);
 };
 

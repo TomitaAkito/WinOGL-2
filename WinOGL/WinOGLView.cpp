@@ -38,6 +38,8 @@ BEGIN_MESSAGE_MAP(CWinOGLView, CView)
 	ON_WM_LBUTTONUP()
 	ON_WM_KEYDOWN()
 	ON_COMMAND(ID_ALLDELETE, &CWinOGLView::OnAlldelete)
+	ON_WM_MOUSEWHEEL()
+	ON_WM_KEYUP()
 END_MESSAGE_MAP()
 
 // CWinOGLView コンストラクション/デストラクション
@@ -110,6 +112,7 @@ void CWinOGLView::OnLButtonDown(UINT nFlags, CPoint point)
 	SetLButton(nFlags, point);
 
 	AC.LButtonDownFlag = true;
+	AC.LButtonDownVeretex->SetXY(x_Ldown, y_Ldown);
 
 	if (AC.EditFlag) AC.Edit(x_Ldown, y_Ldown);
 	else  AC.SetVertex(x_Ldown, y_Ldown);
@@ -238,7 +241,8 @@ void CWinOGLView::OnMouseMove(UINT nFlags, CPoint point) {
 	SetLButton(nFlags, point);
 	AC.SetMouseVertex(x_Ldown, y_Ldown);
 
-	if (AC.LButtonDownFlag && AC.EditFlag)AC.moveByMouse();
+	if (AC.LButtonDownFlag && AC.EditFlag && AC.selectShapeFlag && AC.ShiftFlag)AC.resizeShape();
+	else if (AC.LButtonDownFlag && AC.EditFlag)AC.moveByMouse();
 
 	RedrawWindow();
 	CView::OnMouseMove(nFlags, point);
@@ -270,6 +274,12 @@ void CWinOGLView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	case VK_TAB:
 		OnEdit();
 		break;
+	case VK_SHIFT:
+		AC.ShiftFlag = true;
+		break;
+	case 'R':
+		AC.keyRFlag = true;
+		break;
 	}
 
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
@@ -278,4 +288,23 @@ void CWinOGLView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 void CWinOGLView::OnAlldelete() {
 	AC.freeALLShape();
 	RedrawWindow();
+}
+
+BOOL CWinOGLView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt) {
+	
+
+	return CView::OnMouseWheel(nFlags, zDelta, pt);
+}
+
+void CWinOGLView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	switch (nChar) {
+	case VK_SHIFT:
+		AC.ShiftFlag = false;
+		break;
+	case 'R':
+		AC.keyRFlag = false;
+		break;
+	}
+
+	CView::OnKeyUp(nChar, nRepCnt, nFlags);
 }

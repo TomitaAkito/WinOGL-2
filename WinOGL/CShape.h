@@ -3,6 +3,8 @@
 #pragma once
 class CShape{
 #pragma region メンバ変数
+public:
+	CVertex* COGVertex; // 重心
 private:
 	CVertex* vertex_head;  // 頂点の先頭ポインタ
 	CVertex* vertex_tail;  // 頂点の末尾ポインタ
@@ -175,6 +177,14 @@ private:
 	/// <param name="x">x軸方向の移動量</param>
 	/// <param name="y">y軸方向の移動量</param>
 	void moveByMovement(float x, float y);
+
+	/// <summary>
+	/// 引数に応じて図形を拡大縮小
+	/// </summary>
+	/// <param name="xRate">x軸方向の拡大縮小率</param>
+	/// <param name="yRate">y軸方向の拡大縮小率</param>
+	/// <param name="baseShape">元の図形をコピーしたもの</param>
+	void resizeShape(float xRate,float yRate, CShape* baseShape);
 #pragma endregion
 };
 
