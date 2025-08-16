@@ -262,6 +262,7 @@ void CWinOGLView::OnUpdateEdit(CCmdUI* pCmdUI) {
 
 void CWinOGLView::OnLButtonUp(UINT nFlags, CPoint point) {
 	AC.LButtonDownFlag = false;
+	if(AC.EditFlag) AC.LButtonUp();
 	CView::OnLButtonUp(nFlags, point);
 }
 

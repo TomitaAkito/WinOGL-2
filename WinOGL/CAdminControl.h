@@ -279,6 +279,11 @@ public:
 	/// Editモード解除時の挙動を決定
 	/// </summary>
 	void resetEdit();
+
+	/// <summary>
+	/// 右クリックが挙げられたときの処理
+	/// </summary>
+	void LButtonUp();
 #pragma endregion
 };
 

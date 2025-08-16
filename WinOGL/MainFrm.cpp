@@ -63,6 +63,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockControlBar(&m_wndToolBar);
 
+	HICON hIcon = AfxGetApp()->LoadIcon(IDI_ICON1);
+	SetIcon(hIcon, TRUE);			// 大きいアイコンの設定
+	SetIcon(hIcon, FALSE);		// 小さいアイコンの設定
+
 
 	return 0;
 }

@@ -512,7 +512,7 @@ void CAdminControl::moveShape(CVertex* mouseVertex) {
 	if (ERRFlag)
 		selectShapePointer->moveByMovement((-1) * movement[0], (-1) * movement[1]);
 
-	resizeShapeCopy = copyShape(selectShapePointer);
+	selectShapePointer->SetCOGVertex();
 	
 }
 
@@ -814,4 +814,12 @@ void CAdminControl::resetEdit() {
 	selectVertexPointer = NULL;
 	selectLinePointer = NULL;
 	selectShapePointer = NULL;
+}
+
+void CAdminControl::LButtonUp() {
+	if (selectShapeFlag) {
+		resizeShapeCopy = copyShape(selectShapePointer);
+		selectShapePointer->SetCOGVertex();
+
+	}
 }

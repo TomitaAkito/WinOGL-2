@@ -113,5 +113,14 @@
     <Image Include="res\Toolbar.bmp">
       <Filter>リソース ファイル</Filter>
     </Image>
+    <Image Include="res\icon1.ico">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\icon2.ico">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\icon.ico">
+      <Filter>リソース ファイル</Filter>
+    </Image>
   </ItemGroup>
 </Project>

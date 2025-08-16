@@ -226,6 +226,9 @@
     <None Include="res\WinOGL.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\icon.ico" />
+    <Image Include="res\icon1.ico" />
+    <Image Include="res\icon2.ico" />
     <Image Include="res\Toolbar.bmp" />
     <Image Include="res\WinOGL.ico" />
     <Image Include="res\WinOGLDoc.ico" />
