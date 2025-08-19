@@ -120,6 +120,11 @@ public:
 	/// <param name="mouse_y">マウスのY座標</param>
 	void SetMouseVertex(float mouse_x, float mouse_y);
 
+	/// <summary>
+	/// shape_headを返す
+	/// </summary>
+	/// <returns>図形リストの先頭</returns>
+	CShape* GetShapeHead();
 #pragma endregion
 
 #pragma region 判定

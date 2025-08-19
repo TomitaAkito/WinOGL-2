@@ -13,13 +13,16 @@
 #define ID_EDIT                         32783
 #define ID_32786                        32786
 #define ID_ALLDELETE                    32787
+#define ID_32788                        32788
+#define ID_SHOW_VCL                     32789
+#define ID_BUTTON32794                  32794
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        316
-#define _APS_NEXT_COMMAND_VALUE         32788
+#define _APS_NEXT_COMMAND_VALUE         32795
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

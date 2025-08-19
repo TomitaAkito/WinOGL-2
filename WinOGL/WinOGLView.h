@@ -44,6 +44,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	CString addExtension(CString filepath);
 
 private:
 	HGLRC m_hRC;
@@ -66,6 +67,8 @@ public:
 	afx_msg void OnAlldelete();
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnShowVcl();
+	afx_msg void OnFileSaveAs();
 };
 
 #ifndef _DEBUG  // WinOGLView.cpp のデバッグ バージョン

@@ -235,6 +235,10 @@ void CAdminControl::SetMouseVertex(float mouse_x, float mouse_y) {
 	MoveMouseVertex->SetVertex(mouse_x, mouse_y);
 }
 
+CShape* CAdminControl::GetShapeHead() {
+	return shape_head;
+}
+
 bool CAdminControl::isShapeCross(CVertex* newVertex) {
 
 	// 1‚Â–Ú‚Í‹–‚·
